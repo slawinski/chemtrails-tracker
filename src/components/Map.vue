@@ -1,15 +1,37 @@
 <template>
-  <div class="map">
-    <img alt="Map placeholder" src="https://via.placeholder.com/920x600?text=This+is+a+map">
-  </div>
+  <div class="map"/>
 </template>
 
 <script>
+import gmapsInit from "../utils/gmaps.js";
+
 export default {
-  name: "Map"
+  name: "Map",
+  async mounted() {
+    try {
+      const google = await gmapsInit();
+      const geocoder = new google.maps.Geocoder();
+      const map = new google.maps.Map(this.$el);
+
+      geocoder.geocode({ address: "Austria" }, (results, status) => {
+        if (status !== "OK" || !results[0]) {
+          throw new Error(status);
+        }
+
+        map.setCenter(results[0].geometry.location);
+        map.fitBounds(results[0].geometry.viewport);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
+.map {
+  /* grid-row: 2/3; */
+  width: 100vw;
+  height: 100vh;
+}
 </style>
