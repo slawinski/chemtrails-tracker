@@ -5,42 +5,54 @@
 <script>
 import MarkerClusterer from "@google/markerclusterer";
 import gmapsInit from "../utils/gmaps";
+import flightData from "../utils/flights.mock";
+import planeIcon from "../assets/airplane.png";
+
 const locations = [
   {
+    callsign: "DLH722 ",
+    origin_country: "Germany",
     position: {
-      lat: 48.16091,
-      lng: 16.38333
-    }
+      lng: 22.9349,
+      lat: 52.7172
+    },
+    true_track: 58.05
   },
   {
+    callsign: "AUH07 ",
+    origin_country: "United Arab Emirates",
     position: {
-      lat: 48.17427,
-      lng: 16.32962
-    }
+      lng: 21.1932,
+      lat: 51.8919
+    },
+    true_track: 4.83
   },
   {
+    callsign: "ENT7362 ",
+    origin_country: "Poland",
     position: {
-      lat: 48.14614,
-      lng: 16.29703
-    }
+      lng: 20.9635,
+      lat: 52.1743
+    },
+    true_track: 36
   },
   {
+    callsign: "LOT2MF ",
+    origin_country: "Poland",
     position: {
-      lat: 48.13583,
-      lng: 16.19446
-    }
+      lng: 19.7079,
+      lat: 52.3782
+    },
+    true_track: 95.25
   },
   {
+    callsign: "LOT3GP ",
+    origin_country: "Poland",
     position: {
-      lat: 48.306091,
-      lng: 14.28644
-    }
-  },
-  {
-    position: {
-      lat: 47.50304,
-      lng: 9.74707
-    }
+      lng: 20.9952,
+      lat: 52.1337
+    },
+    true_track: 331.98
   }
 ];
 export default {
@@ -50,8 +62,9 @@ export default {
       const google = await gmapsInit();
       const geocoder = new google.maps.Geocoder();
       const map = new google.maps.Map(this.$el);
-      geocoder.geocode({ address: `Austria` }, (results, status) => {
-        if (status !== `OK` || !results[0]) {
+      const address = "Austria";
+      geocoder.geocode({ address: address }, (results, status) => {
+        if (status !== google.maps.GeocoderStatus.OK || !results[0]) {
           throw new Error(status);
         }
         map.setCenter(results[0].geometry.location);
@@ -62,7 +75,11 @@ export default {
         map.setCenter(marker.getPosition());
       };
       const markers = locations.map(location => {
-        const marker = new google.maps.Marker({ ...location, map });
+        const marker = new google.maps.Marker({
+          ...location,
+          map: map,
+          icon: planeIcon
+        });
         marker.addListener(`click`, () => markerClickHandler(marker));
         return marker;
       });
