@@ -32,6 +32,16 @@ npm run test
 npm run lint
 ```
 
+### Deployment
+
+```bash
+git add dist && git commit -m "Initial dist subtree commit"
+```
+
+```bash
+git subtree push --prefix dist origin gh-pages
+```
+
 ### Customize configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
