@@ -5,7 +5,7 @@
 <script>
 import MarkerClusterer from "@google/markerclusterer";
 import gmapsInit from "../utils/gmaps";
-import planeIcon from "../assets/airplane.png";
+import planeIcon from "../assets/paper-plane.png";
 
 const locations = [
   {
