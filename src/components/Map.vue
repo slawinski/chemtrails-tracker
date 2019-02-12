@@ -5,7 +5,6 @@
 <script>
 import MarkerClusterer from "@google/markerclusterer";
 import gmapsInit from "../utils/gmaps";
-import flightData from "../utils/flights.mock";
 import planeIcon from "../assets/airplane.png";
 
 const locations = [
