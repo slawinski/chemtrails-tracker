@@ -25,6 +25,14 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  display: grid;
+  grid-template-rows: 10% 90%;
+  height: 100vh;
+}
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0px;
 }
 </style>

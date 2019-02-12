@@ -80,7 +80,7 @@ export default {
 
 <style>
 .map {
-  width: 100vw;
-  height: 100vh;
+  grid-row: 2/3;
+  height: 100%;
 }
 </style>
