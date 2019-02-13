@@ -16,6 +16,10 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   grid-row: 1/2;
   position: relative;
 }
