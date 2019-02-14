@@ -54,21 +54,18 @@ const locations = [
     true_track: 331.98
   }
 ];
+
+const defaultMapsOptions = {
+  zoom: 8,
+  center: { lat: 52.232222, lng: 21.008333 }
+};
+
 export default {
   name: `Map`,
   async mounted() {
     try {
       const google = await gmapsInit();
-      const geocoder = new google.maps.Geocoder();
-      const map = new google.maps.Map(this.$el);
-      const address = "Austria";
-      geocoder.geocode({ address: address }, (results, status) => {
-        if (status !== google.maps.GeocoderStatus.OK || !results[0]) {
-          throw new Error(status);
-        }
-        map.setCenter(results[0].geometry.location);
-        map.fitBounds(results[0].geometry.viewport);
-      });
+      const map = new google.maps.Map(this.$el, defaultMapsOptions);
       const markerClickHandler = marker => {
         map.setZoom(13);
         map.setCenter(marker.getPosition());
