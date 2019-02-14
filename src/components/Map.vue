@@ -6,57 +6,10 @@
 import MarkerClusterer from "@google/markerclusterer";
 import gmapsInit from "../utils/gmaps";
 import planeIcon from "../assets/paper-plane.png";
-
-const locations = [
-  {
-    callsign: "DLH722 ",
-    origin_country: "Germany",
-    position: {
-      lng: 22.9349,
-      lat: 52.7172
-    },
-    true_track: 58.05
-  },
-  {
-    callsign: "AUH07 ",
-    origin_country: "United Arab Emirates",
-    position: {
-      lng: 21.1932,
-      lat: 51.8919
-    },
-    true_track: 4.83
-  },
-  {
-    callsign: "ENT7362 ",
-    origin_country: "Poland",
-    position: {
-      lng: 20.9635,
-      lat: 52.1743
-    },
-    true_track: 36
-  },
-  {
-    callsign: "LOT2MF ",
-    origin_country: "Poland",
-    position: {
-      lng: 19.7079,
-      lat: 52.3782
-    },
-    true_track: 95.25
-  },
-  {
-    callsign: "LOT3GP ",
-    origin_country: "Poland",
-    position: {
-      lng: 20.9952,
-      lat: 52.1337
-    },
-    true_track: 331.98
-  }
-];
+import flights from "../utils/flights.mock.json";
 
 const defaultMapsOptions = {
-  zoom: 8,
+  zoom: 6,
   center: { lat: 52.232222, lng: 21.008333 }
 };
 
@@ -70,9 +23,12 @@ export default {
         map.setZoom(13);
         map.setCenter(marker.getPosition());
       };
-      const markers = locations.map(location => {
+      const markers = flights.states.map(flight => {
         const marker = new google.maps.Marker({
-          ...location,
+          position: {
+            lat: flight[6],
+            lng: flight[5]
+          },
           map: map,
           icon: planeIcon
         });
