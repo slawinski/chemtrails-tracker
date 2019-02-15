@@ -6,6 +6,7 @@
 import MarkerClusterer from "@google/markerclusterer";
 import gmapsInit from "../utils/gmaps";
 import planeIcon from "../assets/paper-plane.png";
+// https://opensky-network.org/api/states/all?lamin=36&lomin=-9&lamax=71&lomax=66
 import flights from "../utils/flights.mock.json";
 
 const defaultMapsOptions = {
