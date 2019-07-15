@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Nav msg="Welcome to Chemtrails Tracker!"/>
+    <Nav msg="Chemtrails Tracker"/>
     <Map/>
   </div>
 </template>

@@ -6,8 +6,7 @@
 import MarkerClusterer from "@google/markerclusterer";
 import gmapsInit from "../utils/gmaps";
 import planeIcon from "../assets/paper-plane.png";
-// https://opensky-network.org/api/states/all?lamin=36&lomin=-9&lamax=71&lomax=66
-import flights from "../utils/flights.mock.json";
+import FlightsService from '../services/flights.service';
 
 const defaultMapsOptions = {
   zoom: 6,
@@ -24,7 +23,8 @@ export default {
         map.setZoom(13);
         map.setCenter(marker.getPosition());
       };
-      const markers = flights.states.map(flight => {
+      const flights = await FlightsService.getAll();
+      const markers = flights.data.states.map(flight => {
         const marker = new google.maps.Marker({
           position: {
             lat: flight[6],
