@@ -3,9 +3,9 @@
 </template>
 
 <script>
-import MarkerClusterer from "@google/markerclusterer";
+// import MarkerClusterer from "@google/markerclusterer";
 import gmapsInit from "../utils/gmaps";
-import planeIcon from "../assets/paper-plane.png";
+import planeIcon from "../assets/airplane24.png";
 import FlightsService from '../services/flights.service';
 
 const defaultMapsOptions = {
@@ -37,9 +37,9 @@ export default {
         return marker;
       });
       // eslint-disable-next-line no-new
-      new MarkerClusterer(map, markers, {
-        imagePath: `https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m`
-      });
+      // new MarkerClusterer(map, markers, {
+      //   imagePath: `https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m`
+      // });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
