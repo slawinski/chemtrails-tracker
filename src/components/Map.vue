@@ -24,7 +24,7 @@ export default {
         map.setCenter(marker.getPosition());
       };
       const flights = await FlightsService.getAll();
-      const markers = flights.data.states.map(flight => {
+      flights.data.states.map(flight => {
         const marker = new google.maps.Marker({
           position: {
             lat: flight[6],
