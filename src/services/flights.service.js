@@ -1,8 +1,6 @@
 import axios from 'axios';
 import API from '../constants/api';
 
-export default {
-  async getAll() {
-    return await axios.get(API.GET_ALL)
-  }
+export async function getAll() {
+  return await axios.get(API.GET_ALL)
 }
