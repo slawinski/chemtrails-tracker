@@ -34,15 +34,19 @@ npm run lint
 
 ### Deployment
 
-```bash
+```
 git push origin --delete gh-pages
 ```
 
-```bash
+```
+npm run build
+```
+
+```
 git add dist && git commit -m "Initial dist subtree commit"
 ```
 
-```bash
+```
 git subtree push --prefix dist origin gh-pages
 ```
 

@@ -35,8 +35,8 @@
         const mapContainer = this.$refs.googleMap
         this.map = new this.google.maps.Map(mapContainer, this.defaultMapsOptions);
       },
-      mapArrayToObject(arr) {
-        arr.data.states.map((item) => {
+      mapFlightDataToFlights(flightData) {
+        flightData.data.states.map((item) => {
           const obj = {
             id: item[0],
             callSign: item[1],
@@ -60,7 +60,7 @@
 
         const flightData = await getAll();
 
-        this.mapArrayToObject(flightData);
+        this.mapFlightDataToFlights(flightData);
 
 
       } catch (error) {
