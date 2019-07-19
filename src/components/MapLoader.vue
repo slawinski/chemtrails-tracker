@@ -1,13 +1,18 @@
 <template>
   <div>
-    <div class="map" ref="googleMap"></div>
-    <MapMarker
-            v-for="flight in flights"
-            :key="flight.id"
-            :flight="flight"
-            :google="google"
-            :map="map"
-    />
+    <div v-if="!!flights.length">
+      <img class="spinner rotate" src="../assets/return.svg" alt="">
+    </div>
+    <div v-else>
+      <div class="map" ref="googleMap"></div>
+      <MapMarker
+        v-for="flight in flights"
+        :key="flight.id"
+        :flight="flight"
+        :google="google"
+        :map="map"
+      />
+    </div>
   </div>
 </template>
 
@@ -61,8 +66,6 @@
         const flightData = await getAll();
 
         this.mapFlightDataToFlights(flightData);
-
-
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
@@ -75,5 +78,22 @@
   .map {
     grid-row: 2/3;
     height: 100%;
+  }
+
+  .spinner {
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+
+  .rotate {
+    transform-origin: 50% 50%;
+    animation: rotation 2s infinite linear;
+  }
+
+  @keyframes rotation {
+    to {
+      transform: rotate(360deg);
+    }
   }
 </style>
