@@ -1,19 +1,18 @@
 <template>
   <div>
-    <div v-if="!!flights.length">
-      <img class="spinner rotate" src="../assets/return.svg" alt="">
-    </div>
-    <div v-else>
       <div class="map" ref="googleMap"></div>
-      <MapMarker
-        v-for="flight in flights"
-        :key="flight.id"
-        :flight="flight"
-        :google="google"
-        :map="map"
-      />
+      <img v-if="!(flights.length > 0)" class="spinner rotate" src="../assets/return.svg" alt="">
+      <div v-else>
+        <MapMarker
+              v-for="flight in flights"
+              :key="flight.id"
+              :flight="flight"
+              :google="google"
+              :map="map"
+        />
+      </div>
+
     </div>
-  </div>
 </template>
 
 <script>
@@ -81,14 +80,19 @@
   }
 
   .spinner {
-    position: relative;
-    width: 80px;
-    height: 80px;
+    width: 5rem;
+    height: 5rem;
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   .rotate {
     transform-origin: 50% 50%;
-    animation: rotation 2s infinite linear;
+    animation: rotation 2s infinite steps(20);
   }
 
   @keyframes rotation {
