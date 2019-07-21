@@ -28,6 +28,7 @@
       return {
         google: null,
         map: null,
+        heatMap: null,
         defaultMapsOptions: {
           zoom: 6,
           center: {lat: 52, lng: 19}
@@ -39,6 +40,10 @@
       initializeMap() {
         const mapContainer = this.$refs.googleMap
         this.map = new this.google.maps.Map(mapContainer, this.defaultMapsOptions);
+        this.heatMap = new this.google.maps.visualization.HeatmapLayer({
+          data: this.getPoints(),
+          map: this.map
+        });
       },
       mapFlightDataToFlights(flightData) {
         flightData.data.states.map((item) => {
@@ -56,6 +61,16 @@
           };
           this.flights.push(obj)
         });
+      },
+      getPoints() {
+        return [
+          new this.google.maps.LatLng(52, 20),
+          new this.google.maps.LatLng(52, 21),
+          new this.google.maps.LatLng(52, 22),
+          new this.google.maps.LatLng(53, 23),
+          new this.google.maps.LatLng(53, 24),
+          new this.google.maps.LatLng(53, 25)
+        ];
       }
     },
     async mounted() {

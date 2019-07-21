@@ -31,7 +31,7 @@
           scale: .1,
           fillColor: '#FFFFFF',
           fillOpacity: 1,
-          strokeWeight: 1,
+          strokeWeight: 2,
           rotation: this.flight.trueTrack
         }
       })
