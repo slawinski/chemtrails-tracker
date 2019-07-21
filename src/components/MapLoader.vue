@@ -1,7 +1,7 @@
 <template>
   <div>
       <div class="map" ref="googleMap"></div>
-      <img v-if="!(flights.length > 0)" class="spinner rotate" src="../assets/return.svg" alt="">
+      <Spinner v-if="!(flights.length > 0)"></Spinner>
       <div v-else>
         <MapMarker
               v-for="flight in flights"
@@ -19,10 +19,11 @@
   import gmapsInit from "../utils/gmaps";
   import {getAll} from '../services/flights.service';
   import MapMarker from "./MapMarker";
+  import Spinner from "./Spinner";
 
   export default {
-    name: `Map`,
-    components: {MapMarker},
+    name: 'Map',
+    components: {MapMarker, Spinner},
     data() {
       return {
         google: null,
@@ -77,27 +78,5 @@
   .map {
     grid-row: 2/3;
     height: 100%;
-  }
-
-  .spinner {
-    width: 5rem;
-    height: 5rem;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-
-  .rotate {
-    transform-origin: 50% 50%;
-    animation: rotation 2s infinite steps(20);
-  }
-
-  @keyframes rotation {
-    to {
-      transform: rotate(360deg);
-    }
   }
 </style>
