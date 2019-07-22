@@ -4,11 +4,15 @@
       <Spinner v-if="!(flights.length > 0)"></Spinner>
       <div v-else>
         <MapMarker
-              v-for="flight in flights"
-              :key="flight.id"
-              :flight="flight"
-              :google="google"
-              :map="map"
+          v-for="flight in flights"
+          :key="flight.id"
+          :flight="flight"
+          :google="google"
+          :map="map"
+        />
+        <HeatMap
+          :google="google"
+          :map="map"
         />
       </div>
 
@@ -19,11 +23,16 @@
   import gmapsInit from "../utils/gmaps";
   import {getAll} from '../services/flights.service';
   import MapMarker from "./MapMarker";
+  import HeatMap from "./Header";
   import Spinner from "./Spinner";
 
   export default {
     name: 'Map',
-    components: {MapMarker, Spinner},
+    components: {
+      MapMarker,
+      Spinner,
+      HeatMap
+    },
     data() {
       return {
         google: null,
