@@ -11,6 +11,9 @@
           :map="map"
         />
         <HeatMap
+          v-for="flight in flights"
+          :key="flight.id"
+          :emissionPoint="flight.position"
           :google="google"
           :map="map"
         />
@@ -23,7 +26,7 @@
   import gmapsInit from "../utils/gmaps";
   import {getAll} from '../services/flights.service';
   import MapMarker from "./MapMarker";
-  import HeatMap from "./Header";
+  import HeatMap from "./HeatMap";
   import Spinner from "./Spinner";
 
   export default {
@@ -42,17 +45,14 @@
           zoom: 6,
           center: {lat: 52, lng: 19}
         },
-        flights: []
+        flights: [],
+        heatMaps: []
       }
     },
     methods: {
       initializeMap() {
         const mapContainer = this.$refs.googleMap
         this.map = new this.google.maps.Map(mapContainer, this.defaultMapsOptions);
-        this.heatMap = new this.google.maps.visualization.HeatmapLayer({
-          data: this.getPoints(),
-          map: this.map
-        });
       },
       mapFlightDataToFlights(flightData) {
         flightData.data.states.map((item) => {
@@ -66,21 +66,11 @@
             },
             onGround: item[8],
             velocity: item[9],
-            trueTrack: item[10],
+            trueTrack: item[10]
           };
           this.flights.push(obj)
         });
       },
-      getPoints() {
-        return [
-          new this.google.maps.LatLng(52, 20),
-          new this.google.maps.LatLng(52, 21),
-          new this.google.maps.LatLng(52, 22),
-          new this.google.maps.LatLng(53, 23),
-          new this.google.maps.LatLng(53, 24),
-          new this.google.maps.LatLng(53, 25)
-        ];
-      }
     },
     async mounted() {
       try {
