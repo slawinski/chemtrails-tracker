@@ -43,7 +43,7 @@ npm run build
 ```
 
 ```
-git add dist && git commit -m "Initial dist subtree commit"
+git add dist -f && git commit -m "Initial dist subtree commit"
 ```
 
 ```

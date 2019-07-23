@@ -4,16 +4,13 @@
       <Spinner v-if="!(flights.length > 0)"></Spinner>
       <div v-else>
         <MapMarker
-          v-for="flight in flights"
-          :key="flight.id"
-          :flight="flight"
+          :flight="flights[0]"
           :google="google"
           :map="map"
         />
         <HeatMap
-          v-for="flight in flights"
-          :key="flight.id"
-          :emissionPoint="flight.position"
+          :emissionPoint="flights[0].position"
+          :trueTrack="flights[0].trueTrack"
           :google="google"
           :map="map"
         />
