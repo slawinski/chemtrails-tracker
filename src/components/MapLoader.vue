@@ -4,11 +4,19 @@
       <Spinner v-if="!(flights.length > 0)"></Spinner>
       <div v-else>
         <MapMarker
-              v-for="flight in flights"
-              :key="flight.id"
-              :flight="flight"
-              :google="google"
-              :map="map"
+          v-for="flight in flights.slice(0, 5)"
+          :key="flight.id"
+          :flight="flight"
+          :google="google"
+          :map="map"
+        />
+        <HeatMap
+          v-for="flight in flights.slice(0, 5)"
+          :key="flight.id"
+          :emissionPoint="flight.position"
+          :trueTrack="flight.trueTrack"
+          :google="google"
+          :map="map"
         />
       </div>
 
@@ -19,20 +27,27 @@
   import gmapsInit from "../utils/gmaps";
   import {getAll} from '../services/flights.service';
   import MapMarker from "./MapMarker";
+  import HeatMap from "./HeatMap";
   import Spinner from "./Spinner";
 
   export default {
     name: 'Map',
-    components: {MapMarker, Spinner},
+    components: {
+      MapMarker,
+      Spinner,
+      HeatMap
+    },
     data() {
       return {
         google: null,
         map: null,
+        heatMap: null,
         defaultMapsOptions: {
           zoom: 6,
           center: {lat: 52, lng: 19}
         },
-        flights: []
+        flights: [],
+        heatMaps: []
       }
     },
     methods: {
@@ -52,11 +67,11 @@
             },
             onGround: item[8],
             velocity: item[9],
-            trueTrack: item[10],
+            trueTrack: item[10]
           };
           this.flights.push(obj)
         });
-      }
+      },
     },
     async mounted() {
       try {

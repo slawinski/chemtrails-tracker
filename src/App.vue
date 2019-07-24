@@ -1,18 +1,18 @@
 <template>
   <div id="app">
-    <Nav msg="Chemtrails Tracker"/>
+    <Header msg="Chemtrails Tracker"/>
     <MapLoader/>
   </div>
 </template>
 
 <script>
-  import Nav from "./components/Nav.vue";
+  import Header from "./components/Header.vue";
   import MapLoader from "./components/MapLoader.vue";
 
   export default {
     name: "app",
     components: {
-      Nav,
+      Header,
       MapLoader
     }
   };

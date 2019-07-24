@@ -32,7 +32,7 @@ export default function init() {
   script.defer = true;
   script.src = `https://maps.googleapis.com/maps/api/js?key=${
     process.env.VUE_APP_API_KEY
-  }&callback=${CALLBACK_NAME}`;
+  }&callback=${CALLBACK_NAME}&libraries=visualization`;
   script.onerror = rejectInitPromise;
   document.querySelector(`head`).appendChild(script);
 
