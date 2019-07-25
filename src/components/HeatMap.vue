@@ -39,19 +39,11 @@ export default {
   },
   methods: {
     getPoint() {
-      return [
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat, this.emissionPoint.lng), weight: 3},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.1), this.emissionPoint.lng + this.getLng(this.distance*0.1)), weight: 3},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.2), this.emissionPoint.lng + this.getLng(this.distance*0.2)), weight: 2},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.3), this.emissionPoint.lng + this.getLng(this.distance*0.3)), weight: 2},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.4), this.emissionPoint.lng + this.getLng(this.distance*0.4)), weight: 2},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.5), this.emissionPoint.lng + this.getLng(this.distance*0.5)), weight: 1},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.6), this.emissionPoint.lng + this.getLng(this.distance*0.6)), weight: 1},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.7), this.emissionPoint.lng + this.getLng(this.distance*0.7)), weight: 1},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.8), this.emissionPoint.lng + this.getLng(this.distance*0.8)), weight: 1},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance*0.9), this.emissionPoint.lng + this.getLng(this.distance*0.9)), weight: 1},
-        {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance), this.emissionPoint.lng + this.getLng(this.distance)), weight: 1}
-      ];
+      const iterations = 10;
+      return Array(iterations).fill().map((e, i) => {
+          return {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance * i/10), this.emissionPoint.lng + this.getLng(this.distance * i/10)), weight: 10-i}
+        }
+      );
     },
     toRadians (angle) {
       return angle * (Math.PI / 180);
