@@ -26,8 +26,6 @@ export default {
   },
   data() {
     return {
-      chemLat: null,
-      chemLng: null,
       distance: 1
     }
   },
@@ -50,16 +48,16 @@ export default {
     },
     getLat(dist){
       if (this.trueTrack > 270 || this.trueTrack <= 90) {
-        return this.chemLat = -Math.sqrt(dist**2 * (1 - Math.sin(this.toRadians(this.trueTrack))**2));
+        return -Math.sqrt(dist**2 * (1 - Math.sin(this.toRadians(this.trueTrack))**2));
       } else {
-        return this.chemLat = Math.sqrt(dist**2 * (1 - Math.sin(this.toRadians(this.trueTrack))**2));
+        return Math.sqrt(dist**2 * (1 - Math.sin(this.toRadians(this.trueTrack))**2));
       }
     },
     getLng(dist){
       if (this.trueTrack > 0 && this.trueTrack <= 180) {
-        return this.chemLng = -Math.sqrt(dist**2 * (1 - Math.cos(this.toRadians(this.trueTrack))**2));
+        return -Math.sqrt(dist**2 * (1 - Math.cos(this.toRadians(this.trueTrack))**2));
       } else {
-        return this.chemLng = Math.sqrt(dist**2 * (1 - Math.cos(this.toRadians(this.trueTrack))**2));
+        return Math.sqrt(dist**2 * (1 - Math.cos(this.toRadians(this.trueTrack))**2));
       }
     }
   }
