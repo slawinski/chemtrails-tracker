@@ -5,14 +5,14 @@
       <div v-else>
         <MapMarker
           v-for="flight in flights.slice(0, 5)"
-          :key="flight.id"
+          :key="`marker-${flight.id}`"
           :flight="flight"
           :google="google"
           :map="map"
         />
         <HeatMap
           v-for="flight in flights.slice(0, 5)"
-          :key="flight.id"
+          :key="`heatMap-${flight.id}`"
           :emissionPoint="flight.position"
           :trueTrack="flight.trueTrack"
           :google="google"
