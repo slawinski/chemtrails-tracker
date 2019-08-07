@@ -25,7 +25,7 @@
 
 <script>
   import gmapsInit from "../utils/gmaps";
-  import {getAll} from '../services/flights.service';
+  import FlightService from '../services/flights.service';
   import MapMarker from "./MapMarker";
   import HeatMap from "./HeatMap";
   import Spinner from "./Spinner";
@@ -78,7 +78,7 @@
         this.google = await gmapsInit();
         this.initializeMap();
 
-        const flightData = await getAll();
+        const flightData = await FlightService.getAll();
 
         this.mapFlightDataToFlights(flightData);
       } catch (error) {

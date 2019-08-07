@@ -3,6 +3,8 @@
 </template>
 
 <script>
+  import svgPlane from '!raw-loader!../assets/airplane.svg';
+
   export default {
   name: 'MapMarker',
   props: {
@@ -20,12 +22,18 @@
     }
   },
   mounted() {
+    const parser = new DOMParser();
+    const svgPath = parser
+      .parseFromString(svgPlane, "image/svg+xml")
+      .querySelector('path')
+      .getAttribute('d');
+
     new this.google.maps.Marker({
       position: this.flight.position,
       flight: this.flight,
       map: this.map,
       icon: {
-        path: "M497.25,357v-51l-204-127.5V38.25C293.25,17.85,275.4,0,255,0c-20.4,0-38.25,17.85-38.25,38.25V178.5L12.75,306v51l204-63.75V433.5l-51,38.25V510L255,484.5l89.25,25.5v-38.25l-51-38.25V293.25L497.25,357z",
+        path: svgPath,
         scale: .04,
         fillColor: '#FFFFFF',
         fillOpacity: 1,
