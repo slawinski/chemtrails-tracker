@@ -3,68 +3,79 @@
 </template>
 
 <script>
-
 export default {
   name: 'HeatMap',
   props: {
     google: {
       type: Object,
-      required: true
+      required: true,
     },
     map: {
       type: Object,
-      required: true
+      required: true,
     },
     emissionPoint: {
       type: Object,
-      required: true
+      required: true,
     },
     trueTrack: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
-      distance: 1
-    }
+      distance: 1,
+    };
   },
   mounted() {
     new this.google.maps.visualization.HeatmapLayer({
       data: this.getPoint(),
-      map: this.map
+      map: this.map,
     });
   },
   methods: {
     getPoint() {
       const iterations = 10;
-      return Array(iterations).fill().map((e, i) => {
-          return {location: new this.google.maps.LatLng(this.emissionPoint.lat + this.getLat(this.distance * i/10), this.emissionPoint.lng + this.getLng(this.distance * i/10)), weight: 10-i}
-        }
-      );
+      return Array(iterations)
+        .fill()
+        .map((e, i) => {
+          return {
+            location: new this.google.maps.LatLng(
+              this.emissionPoint.lat + this.getLat((this.distance * i) / 10),
+              this.emissionPoint.lng + this.getLng((this.distance * i) / 10)
+            ),
+            weight: 10 - i,
+          };
+        });
     },
-    toRadians (angle) {
+    toRadians(angle) {
       return angle * (Math.PI / 180);
     },
-    getLat(dist){
+    getLat(dist) {
       if (this.trueTrack > 270 || this.trueTrack <= 90) {
-        return -Math.sqrt(dist**2 * (1 - Math.sin(this.toRadians(this.trueTrack))**2));
+        return -Math.sqrt(
+          dist ** 2 * (1 - Math.sin(this.toRadians(this.trueTrack)) ** 2)
+        );
       } else {
-        return Math.sqrt(dist**2 * (1 - Math.sin(this.toRadians(this.trueTrack))**2));
+        return Math.sqrt(
+          dist ** 2 * (1 - Math.sin(this.toRadians(this.trueTrack)) ** 2)
+        );
       }
     },
-    getLng(dist){
+    getLng(dist) {
       if (this.trueTrack > 0 && this.trueTrack <= 180) {
-        return -Math.sqrt(dist**2 * (1 - Math.cos(this.toRadians(this.trueTrack))**2));
+        return -Math.sqrt(
+          dist ** 2 * (1 - Math.cos(this.toRadians(this.trueTrack)) ** 2)
+        );
       } else {
-        return Math.sqrt(dist**2 * (1 - Math.cos(this.toRadians(this.trueTrack))**2));
+        return Math.sqrt(
+          dist ** 2 * (1 - Math.cos(this.toRadians(this.trueTrack)) ** 2)
+        );
       }
-    }
-  }
-
-}
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

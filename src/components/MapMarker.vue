@@ -3,28 +3,28 @@
 </template>
 
 <script>
-  import svgPlane from '!raw-loader!../assets/airplane.svg';
+import svgPlane from '!raw-loader!../assets/airplane.svg';
 
-  export default {
+export default {
   name: 'MapMarker',
   props: {
     google: {
       type: Object,
-      required: true
+      required: true,
     },
     map: {
       type: Object,
-      required: true
+      required: true,
     },
     flight: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   mounted() {
     const parser = new DOMParser();
     const svgPath = parser
-      .parseFromString(svgPlane, "image/svg+xml")
+      .parseFromString(svgPlane, 'image/svg+xml')
       .querySelector('path')
       .getAttribute('d');
 
@@ -32,20 +32,19 @@
       position: this.flight.position,
       flight: this.flight,
       map: this.map,
+      // TODO: extract to object
       icon: {
         path: svgPath,
-        scale: .04,
+        scale: 0.04,
         fillColor: '#FFFFFF',
         fillOpacity: 1,
         strokeWeight: 1,
         rotation: this.flight.trueTrack,
-        anchor: new this.google.maps.Point(250, 400)
-      }
-    })
-  }
-}
+        anchor: new this.google.maps.Point(250, 400),
+      },
+    });
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
