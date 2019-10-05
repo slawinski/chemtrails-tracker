@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="map" ref="googleMap"></div>
-    <Spinner v-if="!(flights.length > 0)"></Spinner>
+    <div class="map" ref="googleMap" />
+    <Spinner v-if="!(flights.length > 0)" />
     <div v-else>
       <MapMarker
         v-for="flight in flights.slice(0, 5)"
@@ -79,12 +79,12 @@ export default {
     try {
       this.google = await gmapsInit();
       this.initializeMap();
-
       // TODO: try-catch for async axios call
       const flightData = await FlightService.getAll();
 
       this.mapFlightDataToFlights(flightData);
     } catch (error) {
+      // TODO: implement message plugin
       // eslint-disable-next-line no-console
       console.error(error);
     }

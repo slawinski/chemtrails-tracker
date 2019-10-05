@@ -43,7 +43,7 @@ export default {
           return {
             location: new this.google.maps.LatLng(
               this.emissionPoint.lat + this.getLat((this.distance * i) / 10),
-              this.emissionPoint.lng + this.getLng((this.distance * i) / 10)
+              this.emissionPoint.lng + this.getLng((this.distance * i) / 10),
             ),
             weight: 10 - i,
           };
@@ -55,22 +55,22 @@ export default {
     getLat(dist) {
       if (this.trueTrack > 270 || this.trueTrack <= 90) {
         return -Math.sqrt(
-          dist ** 2 * (1 - Math.sin(this.toRadians(this.trueTrack)) ** 2)
+          dist ** 2 * (1 - Math.sin(this.toRadians(this.trueTrack)) ** 2),
         );
       } else {
         return Math.sqrt(
-          dist ** 2 * (1 - Math.sin(this.toRadians(this.trueTrack)) ** 2)
+          dist ** 2 * (1 - Math.sin(this.toRadians(this.trueTrack)) ** 2),
         );
       }
     },
     getLng(dist) {
       if (this.trueTrack > 0 && this.trueTrack <= 180) {
         return -Math.sqrt(
-          dist ** 2 * (1 - Math.cos(this.toRadians(this.trueTrack)) ** 2)
+          dist ** 2 * (1 - Math.cos(this.toRadians(this.trueTrack)) ** 2),
         );
       } else {
         return Math.sqrt(
-          dist ** 2 * (1 - Math.cos(this.toRadians(this.trueTrack)) ** 2)
+          dist ** 2 * (1 - Math.cos(this.toRadians(this.trueTrack)) ** 2),
         );
       }
     },
