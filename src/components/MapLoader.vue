@@ -2,7 +2,11 @@
   <div>
     <l-map :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker :lat-lng="marker" />
+      <MapMarker
+        v-for="flight in flights.slice(0, 5)"
+        :key="`marker-${flight.id}`"
+        :flight="flight"
+      />
     </l-map>
     <Spinner v-if="!(flights.length > 0)" />
   </div>
@@ -11,25 +15,25 @@
 <script>
 import FlightService from '../services/flights.service';
 import Spinner from './Spinner';
-import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
+import MapMarker from './MapMarker';
+import { LMap, LTileLayer } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
   name: 'Map',
   components: {
+    MapMarker,
     Spinner,
     LMap,
-    LMarker,
     LTileLayer,
   },
   data() {
     return {
-      zoom: 13,
+      zoom: 6,
       center: latLng(52, 19),
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      marker: latLng(52, 19),
       flights: [],
     };
   },

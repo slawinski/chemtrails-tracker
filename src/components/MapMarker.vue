@@ -1,25 +1,27 @@
 <template>
-  <div></div>
+  <div>
+    <l-marker :lat-lng="marker" />
+  </div>
 </template>
 
 <script>
 import svgPlane from '!raw-loader!../assets/airplane.svg';
+import { LMarker } from 'vue2-leaflet';
+import { latLng } from 'leaflet';
 
 export default {
   name: 'MapMarker',
+  components: { LMarker },
   props: {
-    google: {
-      type: Object,
-      required: true,
-    },
-    map: {
-      type: Object,
-      required: true,
-    },
     flight: {
       type: Object,
       required: true,
     },
+  },
+  data() {
+    return {
+      marker: latLng(52, 19),
+    };
   },
   mounted() {
     const parser = new DOMParser();
