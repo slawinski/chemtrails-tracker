@@ -1,62 +1,39 @@
 <template>
   <div>
-    <div class="map" ref="googleMap" />
+    <l-map :zoom="zoom" :center="center">
+      <l-tile-layer :url="url" :attribution="attribution" />
+      <l-marker :lat-lng="marker" />
+    </l-map>
     <Spinner v-if="!(flights.length > 0)" />
-    <div v-else>
-      <MapMarker
-        v-for="flight in flights.slice(0, 5)"
-        :key="`marker-${flight.id}`"
-        :flight="flight"
-        :google="google"
-        :map="map"
-      />
-      <HeatMap
-        v-for="flight in flights.slice(0, 5)"
-        :key="`heatMap-${flight.id}`"
-        :emissionPoint="flight.position"
-        :trueTrack="flight.trueTrack"
-        :google="google"
-        :map="map"
-      />
-    </div>
   </div>
 </template>
 
 <script>
-import gmapsInit from '../utils/gmaps';
 import FlightService from '../services/flights.service';
-import MapMarker from './MapMarker';
-import HeatMap from './HeatMap';
 import Spinner from './Spinner';
+import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
+import { latLng } from 'leaflet';
 
 export default {
   name: 'Map',
   components: {
-    MapMarker,
     Spinner,
-    HeatMap,
+    LMap,
+    LMarker,
+    LTileLayer,
   },
   data() {
     return {
-      google: null,
-      map: null,
-      heatMap: null,
-      defaultMapsOptions: {
-        zoom: 6,
-        center: { lat: 52, lng: 19 },
-      },
+      zoom: 13,
+      center: latLng(52, 19),
+      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      attribution:
+        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+      marker: latLng(52, 19),
       flights: [],
-      heatMaps: [],
     };
   },
   methods: {
-    initializeMap() {
-      const mapContainer = this.$refs.googleMap;
-      this.map = new this.google.maps.Map(
-        mapContainer,
-        this.defaultMapsOptions,
-      );
-    },
     mapFlightDataToFlights(flightData) {
       flightData.data.states.map(item => {
         const obj = {
@@ -77,11 +54,7 @@ export default {
   },
   async mounted() {
     try {
-      this.google = await gmapsInit();
-      this.initializeMap();
-      // TODO: try-catch for async axios call
       const flightData = await FlightService.getAll();
-
       this.mapFlightDataToFlights(flightData);
     } catch (error) {
       // TODO: implement message plugin

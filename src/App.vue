@@ -1,35 +1,19 @@
 <template>
   <div id="app">
     <Header msg="Chemtrails Tracker" />
-    <l-map :zoom="zoom" :center="center">
-      <l-tile-layer :url="url" :attribution="attribution" />
-      <l-marker :lat-lng="marker" />
-    </l-map>
+    <map-loader />
   </div>
 </template>
 
 <script>
-import Header from './components/Header.vue';
-import { LMap, LTileLayer, LMarker } from 'vue2-leaflet';
-import { latLng } from 'leaflet';
+import Header from './components/Header';
+import MapLoader from './components/MapLoader';
 
 export default {
   name: 'app',
   components: {
     Header,
-    LMap,
-    LMarker,
-    LTileLayer,
-  },
-  data() {
-    return {
-      zoom: 13,
-      center: latLng(52, 19),
-      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      marker: latLng(52, 19),
-    };
+    MapLoader,
   },
 };
 </script>
