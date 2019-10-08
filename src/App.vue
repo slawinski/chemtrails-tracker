@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Header msg="Chemtrails Tracker" />
+    <Header msg="Chemtrails Guru" />
     <map-loader />
   </div>
 </template>

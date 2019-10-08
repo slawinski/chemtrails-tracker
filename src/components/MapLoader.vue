@@ -3,7 +3,7 @@
     <l-map :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution" />
       <MapMarker
-        v-for="flight in flights.slice(0, 5)"
+        v-for="flight in flights"
         :key="`marker-${flight.id}`"
         :flight="flight"
       />
