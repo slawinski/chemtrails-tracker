@@ -2,30 +2,37 @@
   <div>
     <l-map :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution" />
-      <MapMarker
+      <l-rotated-marker
         v-for="flight in flights"
         :key="`marker-${flight.id}`"
-        :flight="flight"
-      />
+        :lat-lng="flight.position"
+        :rotationAngle="flight.trueTrack"
+      >
+        <l-icon>
+          <img src="../../src/assets/airplane.svg" alt="asdf" />
+        </l-icon>
+      </l-rotated-marker>
     </l-map>
     <Spinner v-if="!(flights.length > 0)" />
   </div>
 </template>
 
 <script>
+import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
+
 import FlightService from '../services/flights.service';
 import Spinner from './Spinner';
-import MapMarker from './MapMarker';
-import { LMap, LTileLayer } from 'vue2-leaflet';
+import { LMap, LTileLayer, LIcon } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
   name: 'Map',
   components: {
-    MapMarker,
     Spinner,
     LMap,
     LTileLayer,
+    LIcon,
+    'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   data() {
     return {
