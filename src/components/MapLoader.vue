@@ -3,14 +3,16 @@
     <l-map :zoom="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution" />
       <l-rotated-marker
-        v-for="flight in flights"
-        :key="`marker-${flight.id}`"
+        v-for="(flight, index) in flights"
+        :key="`marker-${flight.icao24}`"
         :lat-lng="flight.position"
         :rotationAngle="flight.trueTrack"
+        @click="focusOnFlight(index)"
       >
         <l-icon>
           <img src="../../src/assets/airplane.svg" alt="asdf" />
         </l-icon>
+        <l-popup :content="popupMessage(flight)"></l-popup>
       </l-rotated-marker>
     </l-map>
     <Spinner v-if="!(flights.length > 0)" />
@@ -22,7 +24,7 @@ import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
 
 import FlightService from '../services/flights.service';
 import Spinner from './Spinner';
-import { LMap, LTileLayer, LIcon } from 'vue2-leaflet';
+import { LMap, LTileLayer, LIcon, LPopup } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
@@ -32,6 +34,7 @@ export default {
     LMap,
     LTileLayer,
     LIcon,
+    LPopup,
     'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   data() {
@@ -45,28 +48,49 @@ export default {
     };
   },
   methods: {
-    mapFlightDataToFlights(flightData) {
+    // TODO move to utils
+    mapFlightState(flightData) {
       flightData.data.states.map(item => {
         const obj = {
-          id: item[0],
+          icao24: item[0],
           callSign: item[1],
           originCountry: item[2],
+          timePosition: item[3],
+          last_contact: item[4],
           position: {
             lat: item[6],
             lng: item[5],
           },
+          baroAltitude: item[7],
           onGround: item[8],
           velocity: item[9],
           trueTrack: item[10],
+          vertical_rate: item[11],
+          sensors: item[12],
+          geoAltitude: item[13],
+          squawk: item[14],
+          spi: item[15],
+          positionSource: item[16],
         };
         this.flights.push(obj);
       });
+    },
+    focusOnFlight() {
+      // TODO axios to get the flight by aircraft from api
+    },
+    popupMessage(flight) {
+      return `
+        Callsign: ${flight.callSign}
+        Velocity: ${flight.velocity}
+        Altitude: ${flight.baroAltitude}
+        Origin: ${flight.originCountry}
+      `;
     },
   },
   async mounted() {
     try {
       const flightData = await FlightService.getAll();
-      this.mapFlightDataToFlights(flightData);
+      this.mapFlightState(flightData);
     } catch (error) {
       // TODO: implement message plugin
       // eslint-disable-next-line no-console
