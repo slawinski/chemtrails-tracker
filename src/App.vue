@@ -1,18 +1,15 @@
 <template>
   <div id="app">
-    <Header msg="Chemtrails Guru" />
     <map-loader />
   </div>
 </template>
 
 <script>
-import Header from './components/Header';
 import MapLoader from './components/MapLoader';
 
 export default {
   name: 'app',
   components: {
-    Header,
     MapLoader,
   },
 };
@@ -26,7 +23,6 @@ export default {
   text-align: center;
   color: #2c3e50;
   display: grid;
-  grid-template-rows: 20% 80%;
   height: 100vh;
 }
 

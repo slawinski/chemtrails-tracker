@@ -9,6 +9,14 @@ async function getAll() {
   return await axios.get(API.GET_ALL);
 }
 
+// TODO url generator with query parameters
+async function showFlight(icao, begin, end) {
+  return await axios.get(
+    `https://${process.env.VUE_APP_OPENSKY_USER}:${process.env.VUE_APP_OPENSKY_PASSWORD}@opensky-network.org/api/flights/aircraft?icao24=${icao}&begin=${begin}&end=${end}`,
+  );
+}
+
 export default {
   getAll,
+  showFlight,
 };
