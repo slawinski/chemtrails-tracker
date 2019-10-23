@@ -4,30 +4,30 @@
       <l-tile-layer :url="url" :attribution="attribution" />
       <span v-if="!isMarkerClicked">
         <l-rotated-marker
-          v-for="flight in allFlights"
+          v-for="flight in flights"
           :key="`marker-${flight.icao24}`"
           :lat-lng="flight.position"
           :rotationAngle="flight.trueTrack"
           @click="focusOnFlight(flight)"
         >
           <l-icon>
-            <img src="../../src/assets/airplane.svg" alt="asdf" />
+            <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
         </l-rotated-marker>
       </span>
       <span v-else>
         <l-rotated-marker
-          :lat-lng.sync="oneFlight.position"
-          :rotationAngle.sync="oneFlight.trueTrack"
+          :lat-lng="singleFlight.position"
+          :rotationAngle="singleFlight.trueTrack"
         >
           <l-icon>
-            <img src="../../src/assets/airplane.svg" alt="asdf" />
+            <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
-          <l-popup :content="popupMessage(oneFlight)"></l-popup>
+          <l-popup :content="popupMessage(singleFlight)"></l-popup>
         </l-rotated-marker>
       </span>
     </l-map>
-    <Spinner v-if="!(allFlights.length > 0)" />
+    <Spinner v-if="isSpinnerVisible" />
   </div>
 </template>
 
@@ -57,8 +57,9 @@ export default {
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      allFlights: [],
-      oneFlight: [],
+      flights: [],
+      singleFlight: [],
+      isSpinnerVisible: true,
     };
   },
   methods: {
@@ -86,24 +87,27 @@ export default {
           spi: item[15],
           positionSource: item[16],
         };
-        this.allFlights.push(obj);
+        this.flights.push(obj);
       });
     },
     async focusOnFlight(flight) {
-      this.isMarkerClicked = true;
+      this.isSpinnerVisible = true;
       try {
         const flightData = await FlightsService.showFlight(
           flight.icao24,
           Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30,
           Math.floor(Date.now() / 1000),
         );
-        this.oneFlight = flightData.data[0];
-        this.oneFlight.position = flight.position;
-        this.oneFlight.trueTrack = flight.trueTrack;
+        this.singleFlight = flightData.data[0];
+        this.singleFlight.position = flight.position;
+        this.singleFlight.trueTrack = flight.trueTrack;
+        this.isMarkerClicked = true;
       } catch (error) {
         // TODO: implement message plugin
         // eslint-disable-next-line no-console
         console.error(error);
+      } finally {
+        this.isSpinnerVisible = false;
       }
     },
     popupMessage(flight) {
@@ -124,6 +128,8 @@ export default {
       // TODO: implement message plugin
       // eslint-disable-next-line no-console
       console.error(error);
+    } finally {
+      this.isSpinnerVisible = false;
     }
   },
 };
