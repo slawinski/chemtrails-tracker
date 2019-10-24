@@ -35,6 +35,7 @@
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
 
 import FlightsService from '../services/flights.service';
+import { mapFlightState } from '../utils/map';
 import Spinner from './Spinner';
 import { LMap, LTileLayer, LIcon, LPopup } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
@@ -63,42 +64,15 @@ export default {
     };
   },
   methods: {
-    // TODO move to utils
-    mapFlightState(flightData) {
-      flightData.data.states.map(item => {
-        const obj = {
-          icao24: item[0],
-          callSign: item[1],
-          originCountry: item[2],
-          timePosition: item[3],
-          lastContact: item[4],
-          position: {
-            lat: item[6],
-            lng: item[5],
-          },
-          baroAltitude: item[7],
-          onGround: item[8],
-          velocity: item[9],
-          trueTrack: item[10],
-          verticalRate: item[11],
-          sensors: item[12],
-          geoAltitude: item[13],
-          squawk: item[14],
-          spi: item[15],
-          positionSource: item[16],
-        };
-        this.flights.push(obj);
-      });
-    },
     async focusOnFlight(flight) {
       this.isSpinnerVisible = true;
       try {
-        const flightData = await FlightsService.showFlight(
+        const rawFlightData = await FlightsService.showFlight(
           flight.icao24,
           Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30,
           Math.floor(Date.now() / 1000),
         );
-        this.singleFlight = flightData.data[0];
+        this.singleFlight = rawFlightData.data[0];
         this.singleFlight.position = flight.position;
         this.singleFlight.trueTrack = flight.trueTrack;
         this.isMarkerClicked = true;
@@ -119,11 +93,10 @@ export default {
       `;
     },
   },
-  // TODO this one should be a .then
   async mounted() {
     try {
-      const flightData = await FlightsService.getAll();
-      this.mapFlightState(flightData);
+      const rawFlightData = await FlightsService.getAll();
+      this.flights = mapFlightState(rawFlightData);
     } catch (error) {
       // TODO: implement message plugin
       // eslint-disable-next-line no-console
