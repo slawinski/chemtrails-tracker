@@ -1,6 +1,6 @@
 <template>
   <div>
-    <l-map :zoom="zoom" :center="center">
+    <l-map :zoom.sync="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution" />
       <span v-if="!isMarkerClicked">
         <l-rotated-marker
@@ -23,8 +23,12 @@
           <l-icon>
             <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
-          <l-popup :content="popupMessage(singleFlight)"></l-popup>
         </l-rotated-marker>
+        <l-control position="bottomleft">
+          <button @click="clickHandler(singleFlight.position)">
+            Take me back!
+          </button>
+        </l-control>
       </span>
     </l-map>
     <Spinner v-if="isSpinnerVisible" />
@@ -37,7 +41,7 @@ import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
 import FlightsService from '../services/flights.service';
 import { mapFlightState } from '../utils/map';
 import Spinner from './Spinner';
-import { LMap, LTileLayer, LIcon, LPopup } from 'vue2-leaflet';
+import { LMap, LTileLayer, LIcon, LControl } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
@@ -46,8 +50,8 @@ export default {
     Spinner,
     LMap,
     LTileLayer,
+    LControl,
     LIcon,
-    LPopup,
     'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   data() {
@@ -60,12 +64,18 @@ export default {
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       flights: [],
       singleFlight: [],
-      isSpinnerVisible: true,
+      isSpinnerVisible: false,
     };
   },
   methods: {
+    clickHandler() {
+      this.isMarkerClicked = false;
+      this.center = latLng(52, 19);
+      this.zoom = 6;
+    },
     async focusOnFlight(flight) {
       this.isSpinnerVisible = true;
+      this.center = latLng(flight.position);
       try {
         const rawFlightData = await FlightsService.showFlight(
           flight.icao24,
@@ -84,24 +94,18 @@ export default {
         this.isSpinnerVisible = false;
       }
     },
-    popupMessage(flight) {
-      return `
-        Callsign: ${flight.callSign}
-        Velocity: ${flight.velocity}
-        Altitude: ${flight.baroAltitude}
-        Origin: ${flight.originCountry}
-      `;
-    },
   },
   async mounted() {
+    this.isSpinnerVisible = true;
+    let rawFlightData = [];
     try {
-      const rawFlightData = await FlightsService.getAll();
-      this.flights = mapFlightState(rawFlightData);
+      rawFlightData = await FlightsService.getAll();
     } catch (error) {
       // TODO: implement message plugin
       // eslint-disable-next-line no-console
       console.error(error);
     } finally {
+      this.flights = mapFlightState(rawFlightData);
       this.isSpinnerVisible = false;
     }
   },
