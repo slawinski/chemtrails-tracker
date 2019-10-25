@@ -1,100 +1,113 @@
 <template>
   <div>
-    <div class="map" ref="googleMap"></div>
-    <Spinner v-if="!(flights.length > 0)"></Spinner>
-    <div v-else>
-      <MapMarker
-        v-for="flight in flights.slice(0, 5)"
-        :key="`marker-${flight.id}`"
-        :flight="flight"
-        :google="google"
-        :map="map"
-      />
-      <HeatMap
-        v-for="flight in flights.slice(0, 5)"
-        :key="`heatMap-${flight.id}`"
-        :emissionPoint="flight.position"
-        :trueTrack="flight.trueTrack"
-        :google="google"
-        :map="map"
-      />
-    </div>
+    <l-map :zoom.sync="zoom" :center="center">
+      <l-tile-layer :url="url" :attribution="attribution" />
+      <span v-if="!isMarkerClicked">
+        <l-rotated-marker
+          v-for="flight in flights"
+          :key="`marker-${flight.icao24}`"
+          :lat-lng="flight.position"
+          :rotationAngle="flight.trueTrack"
+          @click="focusOnFlight(flight)"
+        >
+          <l-icon>
+            <img src="../../src/assets/airplane.svg" alt="airplane" />
+          </l-icon>
+        </l-rotated-marker>
+      </span>
+      <span v-else>
+        <l-rotated-marker
+          :lat-lng="singleFlight.position"
+          :rotationAngle="singleFlight.trueTrack"
+        >
+          <l-icon>
+            <img src="../../src/assets/airplane.svg" alt="airplane" />
+          </l-icon>
+        </l-rotated-marker>
+        <l-control position="bottomleft">
+          <button @click="clickHandler(singleFlight.position)">
+            Take me back!
+          </button>
+        </l-control>
+      </span>
+    </l-map>
+    <Spinner v-if="isSpinnerVisible" />
   </div>
 </template>
 
 <script>
-import gmapsInit from '../utils/gmaps';
-import FlightService from '../services/flights.service';
-import MapMarker from './MapMarker';
-import HeatMap from './HeatMap';
+import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
+
+import FlightsService from '../services/flights.service';
+import { mapFlightState } from '../utils/map';
 import Spinner from './Spinner';
+import { LMap, LTileLayer, LIcon, LControl } from 'vue2-leaflet';
+import { latLng } from 'leaflet';
 
 export default {
   name: 'Map',
   components: {
-    MapMarker,
     Spinner,
-    HeatMap,
+    LMap,
+    LTileLayer,
+    LControl,
+    LIcon,
+    'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   data() {
     return {
-      google: null,
-      map: null,
-      heatMap: null,
-      defaultMapsOptions: {
-        zoom: 6,
-        center: { lat: 52, lng: 19 },
-      },
+      isMarkerClicked: false,
+      zoom: 6,
+      center: latLng(52, 19),
+      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      attribution:
+        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       flights: [],
-      heatMaps: [],
+      singleFlight: [],
+      isSpinnerVisible: false,
     };
   },
   methods: {
-    initializeMap() {
-      const mapContainer = this.$refs.googleMap;
-      this.map = new this.google.maps.Map(
-        mapContainer,
-        this.defaultMapsOptions,
-      );
+    clickHandler() {
+      this.isMarkerClicked = false;
+      this.center = latLng(52, 19);
+      this.zoom = 6;
     },
-    mapFlightDataToFlights(flightData) {
-      flightData.data.states.map(item => {
-        const obj = {
-          id: item[0],
-          callSign: item[1],
-          originCountry: item[2],
-          position: {
-            lat: item[6],
-            lng: item[5],
-          },
-          onGround: item[8],
-          velocity: item[9],
-          trueTrack: item[10],
-        };
-        this.flights.push(obj);
-      });
+    async focusOnFlight(flight) {
+      this.isSpinnerVisible = true;
+      this.center = latLng(flight.position);
+      try {
+        const rawFlightData = await FlightsService.showFlight(
+          flight.icao24,
+          Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30,
+          Math.floor(Date.now() / 1000),
+        );
+        this.singleFlight = rawFlightData.data[0];
+        this.singleFlight.position = flight.position;
+        this.singleFlight.trueTrack = flight.trueTrack;
+        this.isMarkerClicked = true;
+      } catch (error) {
+        // TODO: implement message plugin
+        // eslint-disable-next-line no-console
+        console.error(error);
+      } finally {
+        this.isSpinnerVisible = false;
+      }
     },
   },
   async mounted() {
+    this.isSpinnerVisible = true;
+    let rawFlightData = [];
     try {
-      this.google = await gmapsInit();
-      this.initializeMap();
-
-      // TODO: try-catch for async axios call
-      const flightData = await FlightService.getAll();
-
-      this.mapFlightDataToFlights(flightData);
+      rawFlightData = await FlightsService.getAll();
     } catch (error) {
+      // TODO: implement message plugin
       // eslint-disable-next-line no-console
       console.error(error);
+    } finally {
+      this.flights = mapFlightState(rawFlightData);
+      this.isSpinnerVisible = false;
     }
   },
 };
 </script>
-
-<style>
-.map {
-  grid-row: 2/3;
-  height: 100%;
-}
-</style>

@@ -1,6 +1,6 @@
-# Chemtrails Tracker
+# Chemtrails Guru
 
-Have you ever wondered if enough chemtrails were distributed above your head to secure your well being? You can kiss that feeling goodbye with Chemtrails Tracker!
+With Chemtrails Guru you will easily determine if a chemtrail is being dispersed above your head!
 
 ## Project setup
 

@@ -1,18 +1,15 @@
 <template>
   <div id="app">
-    <Header msg="Chemtrails Tracker" />
-    <MapLoader />
+    <map-loader />
   </div>
 </template>
 
 <script>
-import Header from './components/Header.vue';
-import MapLoader from './components/MapLoader.vue';
+import MapLoader from './components/MapLoader';
 
 export default {
   name: 'app',
   components: {
-    Header,
     MapLoader,
   },
 };
@@ -26,7 +23,6 @@ export default {
   text-align: center;
   color: #2c3e50;
   display: grid;
-  grid-template-rows: 20% 80%;
   height: 100vh;
 }
 
