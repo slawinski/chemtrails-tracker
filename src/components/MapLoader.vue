@@ -40,7 +40,7 @@
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
 import LeafletHeatmap from 'vue2-leaflet-heatmap';
 import FlightsService from '../services/flights.service';
-import { mapFlightState } from '../utils/map';
+import { mapFlightsData, mapAircraftData } from '../utils/map';
 import Spinner from './Spinner';
 import { LMap, LTileLayer, LIcon, LControl } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
@@ -90,13 +90,14 @@ export default {
       this.center = latLng(flight.position);
       this.latLngArray = this.createHeatMap(flight.position);
       try {
-        const rawFlightData = await FlightsService.showFlight(
+        const rawAircraftData = await FlightsService.showFlight(
           flight.icao24,
           Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7,
           Math.floor(Date.now() / 1000),
         );
-        this.singleFlight = rawFlightData.data[0];
+        this.singleFlight = mapAircraftData(rawAircraftData.data[0]);
         this.singleFlight.position = flight.position;
+        this.singleFlight.timePosition = new Date(flight.timePosition * 1000);
         this.singleFlight.trueTrack = flight.trueTrack;
         this.isMarkerClicked = true;
       } catch (error) {
@@ -110,15 +111,15 @@ export default {
   },
   async mounted() {
     this.isSpinnerVisible = true;
-    let rawFlightData = [];
+    let rawFlightsData = [];
     try {
-      rawFlightData = await FlightsService.getAll();
+      rawFlightsData = await FlightsService.getAll();
     } catch (error) {
       // TODO: implement message plugin
       // eslint-disable-next-line no-console
       console.error(error);
     } finally {
-      this.flights = mapFlightState(rawFlightData);
+      this.flights = mapFlightsData(rawFlightsData);
       this.isSpinnerVisible = false;
     }
   },
