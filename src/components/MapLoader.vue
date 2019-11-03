@@ -40,9 +40,9 @@
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
 import LeafletHeatmap from 'vue2-leaflet-heatmap';
 import FlightsService from '../services/flights.service';
-import { mapFlightsData, mapAircraftData } from '../utils/map';
+import { mapFlightsData } from '../utils/map';
 import Spinner from './Spinner';
-import { LMap, LTileLayer, LIcon, LControl } from 'vue2-leaflet';
+import { LControl, LIcon, LMap, LTileLayer } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
@@ -87,17 +87,12 @@ export default {
     },
     async focusOnFlight(flight) {
       this.isSpinnerVisible = true;
-      this.center = latLng(flight.position);
       this.latLngArray = this.createHeatMap(flight.position);
+      let rawRouteData = [];
       try {
-        const rawAircraftData = await FlightsService.showFlight(
-          flight.icao24,
-          Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 7,
-          Math.floor(Date.now() / 1000),
-        );
-        this.singleFlight = mapAircraftData(rawAircraftData.data[0]);
+        rawRouteData = await FlightsService.showRoute(flight.callSign);
+        this.singleFlight = rawRouteData.data;
         this.singleFlight.position = flight.position;
-        this.singleFlight.timePosition = new Date(flight.timePosition * 1000);
         this.singleFlight.trueTrack = flight.trueTrack;
         this.isMarkerClicked = true;
       } catch (error) {

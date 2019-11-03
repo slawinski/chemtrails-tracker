@@ -1,4 +1,6 @@
 // vue.config.js
 module.exports = {
-  publicPath: 'chemtrails',
+  devServer: {
+    proxy: 'https://opensky-network.org/',
+  },
 };
