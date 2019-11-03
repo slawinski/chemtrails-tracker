@@ -1,3 +1,5 @@
+import { translateIcao } from './translations';
+
 export function mapFlightsData(flightData) {
   const arr = [];
   flightData.data.states.map(item => {
@@ -27,22 +29,15 @@ export function mapFlightsData(flightData) {
   return arr;
 }
 
-export function mapAircraftData(aircraftData) {
+export async function mapRouteData(routeData) {
   return {
-    icao24: aircraftData.icao24,
-    firstSeen: new Date(aircraftData.firstSeen * 1000),
-    estDepartureAirport: aircraftData.estDepartureAirport,
-    lastSeen: new Date(aircraftData.lastSeen * 1000),
-    estArrivalAirport: aircraftData,
-    callsign: aircraftData,
-    estDepartureAirportHorizDistance:
-      aircraftData.estDepartureAirportHorizDistance,
-    estDepartureAirportVertDistance:
-      aircraftData.estDepartureAirportVertDistance,
-    estArrivalAirportHorizDistance: aircraftData.estArrivalAirportHorizDistance,
-    estArrivalAirportVertDistance: aircraftData.estArrivalAirportVertDistance,
-    departureAirportCandidatesCount:
-      aircraftData.departureAirportCandidatesCount,
-    arrivalAirportCandidatesCount: aircraftData.arrivalAirportCandidatesCount,
+    callsign: routeData.callsign,
+    route: {
+      departure: await translateIcao(routeData.route[0]),
+      arrival: await translateIcao(routeData.route[1]),
+    },
+    updateTime: routeData.updateTime,
+    operatorIata: routeData.operatorIata,
+    flightNumber: routeData.flightNumber,
   };
 }
