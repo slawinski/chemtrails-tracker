@@ -1,6 +1,7 @@
-Description
+### Description
 
-What is the type of this Pull Request?
+
+### Check the scope of this Pull Request
 - [ ] Feature
 - [ ] Fix
 - [ ] Refactor
@@ -8,6 +9,8 @@ What is the type of this Pull Request?
 - [ ] Tests
 - [ ] Build
 
-Which part of the app is affected?
+### Which part of the app is affected?
 
-Screenshot
+
+### Screenshot
+
