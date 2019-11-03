@@ -8,8 +8,9 @@ const API = {
    * Axios URL had to be directed via proxy dev server to avoid problems with cors as in
    * https://medium.com/js-dojo/how-to-deal-with-cors-error-on-vue-cli-3-d78c024ce8d3
    */
-  SHOW_AIRPORT: `${process.env.VUE_APP_DEV_SERVER}/api/airports/`,
-  SHOW_ROUTE: `${process.env.VUE_APP_DEV_SERVER}/api/routes`,
+  GET_AIRPORT: `${process.env.VUE_APP_DEV_SERVER}/api/airports`,
+  GET_ROUTE: `${process.env.VUE_APP_DEV_SERVER}/api/routes`,
+  GET_AIRCRAFT: `${process.env.VUE_APP_DEV_SERVER}/api/metadata/aircraft/icao`,
 };
 
 export async function getAll() {
@@ -17,9 +18,13 @@ export async function getAll() {
 }
 
 export async function showRoute(callSign) {
-  return await axios.get(`${API.SHOW_ROUTE}?callsign=${callSign}`);
+  return await axios.get(`${API.GET_ROUTE}?callsign=${callSign}`);
 }
 
 export async function showAirport(icao) {
-  return await axios.get(`${API.SHOW_AIRPORT}?icao=${icao}`);
+  return await axios.get(`${API.GET_AIRPORT}?icao=${icao}`);
+}
+
+export async function showAircraft(icao24) {
+  return await axios.get(`${API.GET_AIRCRAFT}/${icao24}`);
 }
