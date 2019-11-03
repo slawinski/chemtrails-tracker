@@ -37,8 +37,8 @@
 
 <script>
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
-import FlightsService from '../services/flights.service';
-import { mapFlightsData } from '../utils/map';
+import { getAll, showRoute } from '../services/flights.service';
+import { mapFlightsData, mapRouteData } from '../utils/map';
 import Spinner from './Spinner';
 import { LControl, LIcon, LMap, LTileLayer } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
@@ -76,8 +76,8 @@ export default {
       this.isSpinnerVisible = true;
       let rawRouteData = {};
       try {
-        rawRouteData = await FlightsService.showRoute(flight.callSign);
-        this.singleFlight = rawRouteData.data;
+        rawRouteData = await showRoute(flight.callSign);
+        this.singleFlight = await mapRouteData(rawRouteData.data);
         this.singleFlight.position = flight.position;
         this.singleFlight.trueTrack = flight.trueTrack;
         this.isMarkerClicked = true;
@@ -94,7 +94,7 @@ export default {
     this.isSpinnerVisible = true;
     let rawFlightsData = [];
     try {
-      rawFlightsData = await FlightsService.getAll();
+      rawFlightsData = await getAll();
     } catch (error) {
       // TODO: implement message plugin
       // eslint-disable-next-line no-console
