@@ -1,4 +1,4 @@
-export function mapFlightState(flightData) {
+export function mapFlightsData(flightData) {
   const arr = [];
   flightData.data.states.map(item => {
     const obj = {
@@ -25,4 +25,24 @@ export function mapFlightState(flightData) {
     arr.push(obj);
   });
   return arr;
+}
+
+export function mapAircraftData(aircraftData) {
+  return {
+    icao24: aircraftData.icao24,
+    firstSeen: new Date(aircraftData.firstSeen * 1000),
+    estDepartureAirport: aircraftData.estDepartureAirport,
+    lastSeen: new Date(aircraftData.lastSeen * 1000),
+    estArrivalAirport: aircraftData,
+    callsign: aircraftData,
+    estDepartureAirportHorizDistance:
+      aircraftData.estDepartureAirportHorizDistance,
+    estDepartureAirportVertDistance:
+      aircraftData.estDepartureAirportVertDistance,
+    estArrivalAirportHorizDistance: aircraftData.estArrivalAirportHorizDistance,
+    estArrivalAirportVertDistance: aircraftData.estArrivalAirportVertDistance,
+    departureAirportCandidatesCount:
+      aircraftData.departureAirportCandidatesCount,
+    arrivalAirportCandidatesCount: aircraftData.arrivalAirportCandidatesCount,
+  };
 }

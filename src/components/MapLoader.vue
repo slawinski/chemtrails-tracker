@@ -31,17 +31,16 @@
         </l-control>
       </span>
     </l-map>
-    <Spinner v-if="isSpinnerVisible" />
+    <Spinner class="spinner" v-if="isSpinnerVisible" />
   </div>
 </template>
 
 <script>
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
-
 import FlightsService from '../services/flights.service';
-import { mapFlightState } from '../utils/map';
+import { mapFlightsData } from '../utils/map';
 import Spinner from './Spinner';
-import { LMap, LTileLayer, LIcon, LControl } from 'vue2-leaflet';
+import { LControl, LIcon, LMap, LTileLayer } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
@@ -75,14 +74,10 @@ export default {
     },
     async focusOnFlight(flight) {
       this.isSpinnerVisible = true;
-      this.center = latLng(flight.position);
+      let rawRouteData = {};
       try {
-        const rawFlightData = await FlightsService.showFlight(
-          flight.icao24,
-          Math.floor(Date.now() / 1000) - 60 * 60 * 24 * 30,
-          Math.floor(Date.now() / 1000),
-        );
-        this.singleFlight = rawFlightData.data[0];
+        rawRouteData = await FlightsService.showRoute(flight.callSign);
+        this.singleFlight = rawRouteData.data;
         this.singleFlight.position = flight.position;
         this.singleFlight.trueTrack = flight.trueTrack;
         this.isMarkerClicked = true;
@@ -97,17 +92,23 @@ export default {
   },
   async mounted() {
     this.isSpinnerVisible = true;
-    let rawFlightData = [];
+    let rawFlightsData = [];
     try {
-      rawFlightData = await FlightsService.getAll();
+      rawFlightsData = await FlightsService.getAll();
     } catch (error) {
       // TODO: implement message plugin
       // eslint-disable-next-line no-console
       console.error(error);
     } finally {
-      this.flights = mapFlightState(rawFlightData);
+      this.flights = mapFlightsData(rawFlightsData);
       this.isSpinnerVisible = false;
     }
   },
 };
 </script>
+
+<style>
+.spinner {
+  z-index: 9999;
+}
+</style>
