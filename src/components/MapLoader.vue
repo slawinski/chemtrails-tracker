@@ -37,7 +37,7 @@
 
 <script>
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
-import { getAll, showRoute } from '../services/flights.service';
+import { getAll, showRoute, showAircraft } from '../services/flights.service';
 import { mapFlightsData, mapRouteData } from '../utils/map';
 import Spinner from './Spinner';
 import { LControl, LIcon, LMap, LTileLayer } from 'vue2-leaflet';
@@ -62,7 +62,8 @@ export default {
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       flights: [],
-      singleFlight: [],
+      singleFlight: {},
+      aircraft: {},
       isSpinnerVisible: false,
     };
   },
@@ -75,11 +76,14 @@ export default {
     async focusOnFlight(flight) {
       this.isSpinnerVisible = true;
       let rawRouteData = {};
+      let rawAircraftData = {};
       try {
         rawRouteData = await showRoute(flight.callSign);
         this.singleFlight = await mapRouteData(rawRouteData.data);
         this.singleFlight.position = flight.position;
         this.singleFlight.trueTrack = flight.trueTrack;
+        rawAircraftData = await showAircraft(flight.icao24);
+        this.aircraft = rawAircraftData.data;
         this.isMarkerClicked = true;
       } catch (error) {
         // TODO: implement message plugin
