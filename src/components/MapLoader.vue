@@ -17,15 +17,15 @@
       </span>
       <span v-else>
         <l-rotated-marker
-          :lat-lng="singleFlight.position"
-          :rotationAngle="singleFlight.trueTrack"
+          :lat-lng="singleFlight.trackingData.position"
+          :rotationAngle="singleFlight.trackingData.trueTrack"
         >
           <l-icon>
             <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
         </l-rotated-marker>
         <l-control position="bottomleft">
-          <button @click="clickHandler(singleFlight.position)">
+          <button @click="clickHandler()">
             Take me back!
           </button>
         </l-control>
@@ -63,7 +63,6 @@ export default {
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       flights: [],
       singleFlight: {},
-      aircraft: {},
       isSpinnerVisible: false,
     };
   },
@@ -79,11 +78,10 @@ export default {
       let rawAircraftData = {};
       try {
         rawRouteData = await showRoute(flight.callSign);
-        this.singleFlight = await mapRouteData(rawRouteData.data);
-        this.singleFlight.position = flight.position;
-        this.singleFlight.trueTrack = flight.trueTrack;
+        this.singleFlight.route = await mapRouteData(rawRouteData.data);
         rawAircraftData = await showAircraft(flight.icao24);
-        this.aircraft = rawAircraftData.data;
+        this.singleFlight.aircraft = rawAircraftData.data;
+        this.singleFlight.trackingData = flight;
         this.isMarkerClicked = true;
       } catch (error) {
         // TODO: implement message plugin
