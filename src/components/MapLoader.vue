@@ -74,15 +74,17 @@ export default {
     },
     async focusOnFlight(flight) {
       this.isSpinnerVisible = true;
+      this.isMarkerClicked = true;
+      this.singleFlight.trackingData = flight;
       let rawRouteData = {};
       let rawAircraftData = {};
       try {
+        // TODO if no callsign throws error but could provide aircraft information instead
+        // extract into separate async functions
         rawRouteData = await showRoute(flight.callSign);
         this.singleFlight.route = await mapRouteData(rawRouteData.data);
         rawAircraftData = await showAircraft(flight.icao24);
         this.singleFlight.aircraft = rawAircraftData.data;
-        this.singleFlight.trackingData = flight;
-        this.isMarkerClicked = true;
       } catch (error) {
         // TODO: implement message plugin
         // eslint-disable-next-line no-console
