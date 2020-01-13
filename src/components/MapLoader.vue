@@ -16,6 +16,7 @@
         </l-rotated-marker>
       </span>
       <span v-else>
+        <LeafletHeatmap :lat-lng="heatmapArray" />
         <l-rotated-marker
           :lat-lng="singleFlight.trackingData.position"
           :rotationAngle="singleFlight.trackingData.trueTrack"
@@ -37,6 +38,7 @@
 
 <script>
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
+import LeafletHeatmap from 'vue2-leaflet-heatmap';
 import { getAll, showRoute, showAircraft } from '../services/flights.service';
 import { mapFlightsData, mapRouteData } from '../utils/map';
 import Spinner from './Spinner';
@@ -47,6 +49,7 @@ export default {
   name: 'Map',
   components: {
     Spinner,
+    LeafletHeatmap,
     LMap,
     LTileLayer,
     LControl,
@@ -64,9 +67,18 @@ export default {
       flights: [],
       singleFlight: {},
       isSpinnerVisible: false,
+      heatmapArray: [],
     };
   },
   methods: {
+    createHeatMap(position) {
+      return [
+        [position.lat - 0.1, position.lng - 0.1, 1],
+        [position.lat - 0.1, position.lng - 0.1, 1],
+        [position.lat - 0.1, position.lng - 0.1, 1],
+        [position.lat - 0.1, position.lng - 0.1, 1],
+      ];
+    },
     clickHandler() {
       this.isMarkerClicked = false;
       this.center = latLng(52, 19);
@@ -74,6 +86,7 @@ export default {
     },
     async focusOnFlight(flight) {
       this.isSpinnerVisible = true;
+      this.heatmapArray = this.createHeatMap(flight.position);
       this.isMarkerClicked = true;
       this.singleFlight.trackingData = flight;
       let rawRouteData = {};
