@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <l-map :zoom.sync="zoom" :center="center">
+  <div>
+    <l-map ref="map" :zoom.sync="zoom" :center="center">
       <l-tile-layer :url="url" :attribution="attribution" />
       <span v-if="!isMarkerClicked">
         <l-rotated-marker
@@ -26,7 +26,7 @@
           </l-icon>
         </l-rotated-marker>
         <l-control position="bottomleft">
-          <button @click="clickHandler()">
+          <button @click="goBack()">
             Take me back!
           </button>
         </l-control>
@@ -75,29 +75,6 @@ export default {
     };
   },
   methods: {
-    async mapRouteData(routeData) {
-      this.singleFlight.route = {
-        callsign: routeData.callsign,
-        route: {
-          departure: await this.translateIcao(routeData.route[0]),
-          arrival: await this.translateIcao(routeData.route[1]),
-        },
-        updateTime: routeData.updateTime,
-        operatorIata: routeData.operatorIata,
-        flightNumber: routeData.flightNumber,
-      };
-    },
-    async translateIcao(icao) {
-      let obj = {};
-      try {
-        obj = await showAirport(icao);
-        return `${obj.data.municipality}, ${obj.data.country}`;
-      } catch (error) {
-        // TODO: implement message plugin
-        // eslint-disable-next-line no-console
-        console.error(error);
-      }
-    },
     mapFlightsData(flightData) {
       flightData.data.states.map(item => {
         const obj = {
@@ -124,30 +101,42 @@ export default {
         this.flights.push(obj);
       });
     },
-    createHeatMap(position) {
+    async mapRouteData(routeData) {
+      this.singleFlight.route = {
+        callsign: routeData.callsign,
+        route: {
+          departure: await this.translateIcao(routeData.route[0]),
+          arrival: await this.translateIcao(routeData.route[1]),
+        },
+        updateTime: routeData.updateTime,
+        operatorIata: routeData.operatorIata,
+        flightNumber: routeData.flightNumber,
+      };
+    },
+    async translateIcao(icao) {
+      let obj = {};
+      try {
+        obj = await showAirport(icao);
+        return `${obj.data.municipality}, ${obj.data.country}`;
+      } catch (error) {
+        // TODO: implement message plugin
+        // eslint-disable-next-line no-console
+        console.error(error);
+      }
+    },
+    createHeatMap(position, trueTrack) {
       const iterations = 100;
       const distance = 20 / iterations;
 
-      return Array(iterations)
+      return (this.heatmapArray = Array(iterations)
         .fill()
         .map((e, i) => {
           return [
-            position.lat +
-              this.getLat(
-                (distance * i) / 10,
-                this.singleFlight.trackingData.trueTrack,
-              ),
-            position.lng +
-              this.getLng(
-                (distance * i) / 10,
-                this.singleFlight.trackingData.trueTrack,
-              ),
+            position.lat + this.getLat((distance * i) / 10, trueTrack),
+            position.lng + this.getLng((distance * i) / 10, trueTrack),
             iterations - i,
           ];
-        });
-    },
-    toRadians(angle) {
-      return angle * (Math.PI / 180);
+        }));
     },
     getLat(dist, trueTrack) {
       if (trueTrack > 270 || trueTrack <= 90) {
@@ -171,49 +160,63 @@ export default {
         );
       }
     },
-    clickHandler() {
-      this.isMarkerClicked = false;
-      this.center = latLng(52, 19);
-      this.zoom = 6;
+    toRadians(angle) {
+      return angle * (Math.PI / 180);
     },
-    async focusOnFlight(flight) {
+    async getFlights() {
       this.isSpinnerVisible = true;
-      this.isMarkerClicked = true;
-      this.singleFlight.trackingData = flight;
-      this.heatmapArray = this.createHeatMap(flight.position);
-      this.center = latLng(flight.position.lat, flight.position.lng);
-      let rawRouteData = {};
-      let rawAircraftData = {};
+      let rawFlightsData = [];
       try {
-        // TODO if no callsign throws error but could provide aircraft information instead
-        // extract into separate async functions
-        rawRouteData = await showRoute(flight.callSign);
-        this.mapRouteData(rawRouteData.data);
-        rawAircraftData = await showAircraft(flight.icao24);
-        this.singleFlight.aircraft = rawAircraftData.data;
+        rawFlightsData = await getAll();
       } catch (error) {
         // TODO: implement message plugin
         // eslint-disable-next-line no-console
         console.error(error);
       } finally {
+        this.mapFlightsData(rawFlightsData);
         this.isSpinnerVisible = false;
       }
-      this.zoom = 8;
+    },
+    async getRoute(flight) {
+      let rawRouteData = {};
+      try {
+        rawRouteData = await showRoute(flight.callSign);
+      } catch (error) {
+        // TODO: implement message plugin
+        // eslint-disable-next-line no-console
+        console.error(error);
+      } finally {
+        this.mapRouteData(rawRouteData.data);
+      }
+    },
+    async getAircraft(flight) {
+      let rawAircraftData = {};
+      try {
+        rawAircraftData = await showAircraft(flight.icao24);
+      } catch (error) {
+        // TODO: implement message plugin
+        // eslint-disable-next-line no-console
+        console.error(error);
+      } finally {
+        this.singleFlight.aircraft = rawAircraftData.data;
+      }
+    },
+    async focusOnFlight(flight) {
+      this.isMarkerClicked = true;
+      this.singleFlight.trackingData = flight;
+      this.$refs.map.mapObject.setView(flight.position, 8);
+      this.createHeatMap(flight.position, flight.trueTrack);
+      this.getRoute(flight);
+      this.getAircraft(flight);
+    },
+    goBack() {
+      this.isMarkerClicked = false;
+      this.$refs.map.mapObject.setView(this.center, 6);
     },
   },
-  async mounted() {
-    this.isSpinnerVisible = true;
-    let rawFlightsData = [];
-    try {
-      rawFlightsData = await getAll();
-    } catch (error) {
-      // TODO: implement message plugin
-      // eslint-disable-next-line no-console
-      console.error(error);
-    } finally {
-      this.mapFlightsData(rawFlightsData);
-      this.isSpinnerVisible = false;
-    }
+  mounted() {
+    // TODO make a call to method here
+    this.getFlights();
   },
 };
 </script>
