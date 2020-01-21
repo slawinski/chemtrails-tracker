@@ -113,15 +113,21 @@ export default {
         flightNumber: routeData.flightNumber,
       });
     },
+    notification(message) {
+      this.$notify({
+        group: 'api',
+        type: 'error',
+        title: 'ERROR',
+        text: `An error has occurred while fetching ${message} data`,
+      });
+    },
     async translateIcao(icao) {
       let obj = {};
       try {
         obj = await showAirport(icao);
         return `${obj.data.municipality}, ${obj.data.country}`;
       } catch (error) {
-        // TODO: implement message plugin
-        // eslint-disable-next-line no-console
-        console.error(error);
+        this.notification('airport');
       }
     },
     createHeatMap(position, trueTrack) {
@@ -169,9 +175,7 @@ export default {
       try {
         rawFlightsData = await getAll();
       } catch (error) {
-        // TODO: implement message plugin
-        // eslint-disable-next-line no-console
-        console.error(error);
+        this.notification('flights');
       } finally {
         this.mapFlightsData(rawFlightsData);
         this.isSpinnerVisible = false;
@@ -182,9 +186,7 @@ export default {
       try {
         rawRouteData = await showRoute(flight.callSign);
       } catch (error) {
-        // TODO: implement message plugin
-        // eslint-disable-next-line no-console
-        console.error(error);
+        this.notification('route');
       } finally {
         this.mapRouteData(rawRouteData.data);
       }
@@ -194,9 +196,7 @@ export default {
       try {
         rawAircraftData = await showAircraft(flight.icao24);
       } catch (error) {
-        // TODO: implement message plugin
-        // eslint-disable-next-line no-console
-        console.error(error);
+        this.notification('aircraft');
       } finally {
         this.singleFlight.aircraft = rawAircraftData.data;
       }
