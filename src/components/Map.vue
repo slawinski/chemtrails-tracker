@@ -102,7 +102,7 @@ export default {
       });
     },
     async mapRouteData(routeData) {
-      this.singleFlight.route = {
+      return (this.singleFlight.route = {
         callsign: routeData.callsign,
         route: {
           departure: await this.translateIcao(routeData.route[0]),
@@ -111,7 +111,7 @@ export default {
         updateTime: routeData.updateTime,
         operatorIata: routeData.operatorIata,
         flightNumber: routeData.flightNumber,
-      };
+      });
     },
     async translateIcao(icao) {
       let obj = {};
@@ -215,7 +215,6 @@ export default {
     },
   },
   mounted() {
-    // TODO make a call to method here
     this.getFlights();
   },
 };
