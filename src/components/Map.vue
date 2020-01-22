@@ -21,12 +21,16 @@
           :lat-lng="singleFlight.trackingData.position"
           :rotationAngle="singleFlight.trackingData.trueTrack"
         >
+          <l-popup
+            :content="popupData"
+            v-if="singleFlight.aircraft && singleFlight.route"
+          ></l-popup>
           <l-icon>
             <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
         </l-rotated-marker>
         <l-control position="bottomleft">
-          <button @click="goBack()">
+          <button @click="goBack">
             Take me back!
           </button>
         </l-control>
@@ -46,7 +50,7 @@ import {
   showAirport,
 } from '../services/flights.service';
 import Spinner from '../components/Spinner';
-import { LControl, LIcon, LMap, LTileLayer } from 'vue2-leaflet';
+import { LControl, LIcon, LMap, LTileLayer, LPopup } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
@@ -58,6 +62,7 @@ export default {
     LTileLayer,
     LControl,
     LIcon,
+    LPopup,
     'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   data() {
@@ -73,6 +78,11 @@ export default {
       isSpinnerVisible: false,
       heatmapArray: [],
     };
+  },
+  computed: {
+    popupData() {
+      return `${this.singleFlight.aircraft.model} | ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+    },
   },
   methods: {
     mapFlightsData(flightData) {
@@ -211,6 +221,7 @@ export default {
     },
     goBack() {
       this.isMarkerClicked = false;
+      this.singleFlight = {};
       this.$refs.map.mapObject.setView(this.center, 6);
     },
   },
