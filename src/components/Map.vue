@@ -24,7 +24,7 @@
           <l-popup
             :content="popupData"
             v-if="singleFlight.aircraft && singleFlight.route"
-          ></l-popup>
+          />
           <l-icon>
             <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
@@ -81,7 +81,8 @@ export default {
   },
   computed: {
     popupData() {
-      return `${this.singleFlight.aircraft.model} | ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+      return `Aircraft: ${this.singleFlight.aircraft.model} <br/>
+        Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
     },
   },
   methods: {
