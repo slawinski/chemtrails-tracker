@@ -21,10 +21,7 @@
           :lat-lng="singleFlight.trackingData.position"
           :rotationAngle="singleFlight.trackingData.trueTrack"
         >
-          <l-popup
-            :content="popupData"
-            v-if="singleFlight.aircraft && singleFlight.route"
-          />
+          <l-popup :content="popupData" />
           <l-icon>
             <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
@@ -74,15 +71,31 @@ export default {
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       flights: [],
-      singleFlight: {},
+      singleFlight: {
+        aircraft: null,
+        route: null,
+        trackingData: null,
+      },
       isSpinnerVisible: false,
       heatmapArray: [],
     };
   },
   computed: {
     popupData() {
-      return `Aircraft: ${this.singleFlight.aircraft.model} <br/>
-        Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+      let text = '';
+      if (this.singleFlight.aircraft && this.singleFlight.route) {
+        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
+          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+      } else if (this.singleFlight.aircraft && !this.singleFlight.route) {
+        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
+          Route: no data`;
+      } else if (!this.singleFlight.aircraft && this.singleFlight.route) {
+        text = `Aircraft: no data <br/>
+          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+      } else if (!this.singleFlight.aircraft && !this.singleFlight.route) {
+        text = `No data`;
+      }
+      return text;
     },
   },
   methods: {
@@ -222,7 +235,11 @@ export default {
     },
     goBack() {
       this.isMarkerClicked = false;
-      this.singleFlight = {};
+      this.singleFlight = {
+        aircraft: null,
+        route: null,
+        trackingData: null,
+      };
       this.$refs.map.mapObject.setView(this.center, 6);
     },
   },
