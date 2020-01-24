@@ -21,12 +21,13 @@
           :lat-lng="singleFlight.trackingData.position"
           :rotationAngle="singleFlight.trackingData.trueTrack"
         >
+          <l-popup :content="popupData" />
           <l-icon>
             <img src="../../src/assets/airplane.svg" alt="airplane" />
           </l-icon>
         </l-rotated-marker>
         <l-control position="bottomleft">
-          <button @click="goBack()">
+          <button @click="goBack">
             Take me back!
           </button>
         </l-control>
@@ -46,7 +47,7 @@ import {
   showAirport,
 } from '../services/flights.service';
 import Spinner from '../components/Spinner';
-import { LControl, LIcon, LMap, LTileLayer } from 'vue2-leaflet';
+import { LControl, LIcon, LMap, LTileLayer, LPopup } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
@@ -58,6 +59,7 @@ export default {
     LTileLayer,
     LControl,
     LIcon,
+    LPopup,
     'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   data() {
@@ -69,10 +71,32 @@ export default {
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       flights: [],
-      singleFlight: {},
+      singleFlight: {
+        aircraft: null,
+        route: null,
+        trackingData: null,
+      },
       isSpinnerVisible: false,
       heatmapArray: [],
     };
+  },
+  computed: {
+    popupData() {
+      let text = '';
+      if (this.singleFlight.aircraft && this.singleFlight.route) {
+        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
+          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+      } else if (this.singleFlight.aircraft && !this.singleFlight.route) {
+        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
+          Route: no data`;
+      } else if (!this.singleFlight.aircraft && this.singleFlight.route) {
+        text = `Aircraft: no data <br/>
+          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+      } else if (!this.singleFlight.aircraft && !this.singleFlight.route) {
+        text = `No data`;
+      }
+      return text;
+    },
   },
   methods: {
     mapFlightsData(flightData) {
@@ -211,6 +235,11 @@ export default {
     },
     goBack() {
       this.isMarkerClicked = false;
+      this.singleFlight = {
+        aircraft: null,
+        route: null,
+        trackingData: null,
+      };
       this.$refs.map.mapObject.setView(this.center, 6);
     },
   },
