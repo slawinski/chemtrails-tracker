@@ -3,6 +3,9 @@ import App from './App.vue';
 import Notifications from 'vue-notification';
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import VueCompositionApi from '@vue/composition-api';
+
+Vue.use(VueCompositionApi);
 
 Vue.use(Notifications);
 

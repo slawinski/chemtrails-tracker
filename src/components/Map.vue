@@ -51,6 +51,44 @@ import { LControl, LIcon, LMap, LTileLayer, LPopup } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
+  setup() {
+    function createHeatMap(position, trueTrack) {
+      const iterations = 100;
+      const distance = 20 / iterations;
+
+      return (this.heatmapArray = Array(iterations)
+        .fill()
+        .map((e, i) => {
+          return [
+            position.lat + getLat((distance * i) / 10, trueTrack),
+            position.lng + getLng((distance * i) / 10, trueTrack),
+            iterations - i,
+          ];
+        }));
+    }
+    function getLat(dist, trueTrack) {
+      if (trueTrack > 270 || trueTrack <= 90) {
+        return -Math.sqrt(
+          dist ** 2 * (1 - Math.sin(toRadians(trueTrack)) ** 2),
+        );
+      } else {
+        return Math.sqrt(dist ** 2 * (1 - Math.sin(toRadians(trueTrack)) ** 2));
+      }
+    }
+    function getLng(dist, trueTrack) {
+      if (trueTrack > 0 && trueTrack <= 180) {
+        return -Math.sqrt(
+          dist ** 2 * (1 - Math.cos(toRadians(trueTrack)) ** 2),
+        );
+      } else {
+        return Math.sqrt(dist ** 2 * (1 - Math.cos(toRadians(trueTrack)) ** 2));
+      }
+    }
+    function toRadians(angle) {
+      return angle * (Math.PI / 180);
+    }
+    return { createHeatMap };
+  },
   name: 'Map',
   components: {
     Spinner,
@@ -153,45 +191,6 @@ export default {
       } catch (error) {
         this.notification('airport');
       }
-    },
-    createHeatMap(position, trueTrack) {
-      const iterations = 100;
-      const distance = 20 / iterations;
-
-      return (this.heatmapArray = Array(iterations)
-        .fill()
-        .map((e, i) => {
-          return [
-            position.lat + this.getLat((distance * i) / 10, trueTrack),
-            position.lng + this.getLng((distance * i) / 10, trueTrack),
-            iterations - i,
-          ];
-        }));
-    },
-    getLat(dist, trueTrack) {
-      if (trueTrack > 270 || trueTrack <= 90) {
-        return -Math.sqrt(
-          dist ** 2 * (1 - Math.sin(this.toRadians(trueTrack)) ** 2),
-        );
-      } else {
-        return Math.sqrt(
-          dist ** 2 * (1 - Math.sin(this.toRadians(trueTrack)) ** 2),
-        );
-      }
-    },
-    getLng(dist, trueTrack) {
-      if (trueTrack > 0 && trueTrack <= 180) {
-        return -Math.sqrt(
-          dist ** 2 * (1 - Math.cos(this.toRadians(trueTrack)) ** 2),
-        );
-      } else {
-        return Math.sqrt(
-          dist ** 2 * (1 - Math.cos(this.toRadians(trueTrack)) ** 2),
-        );
-      }
-    },
-    toRadians(angle) {
-      return angle * (Math.PI / 180);
     },
     async getFlights() {
       this.isSpinnerVisible = true;
