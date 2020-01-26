@@ -53,7 +53,18 @@ import { latLng } from 'leaflet';
 
 export default {
   name: 'Map',
+  components: {
+    Spinner,
+    LeafletHeatmap,
+    LMap,
+    LTileLayer,
+    LControl,
+    LIcon,
+    LPopup,
+    'l-rotated-marker': Vue2LeafletRotatedMarker,
+  },
   setup() {
+    const { zoom, center, url, attribution } = useMapConfig();
     const { isSpinnerVisible, flights } = useFlights();
     const {
       popupData,
@@ -63,8 +74,12 @@ export default {
       heatmapArray,
       goBack,
       map,
-    } = useFocusOnFlight();
+    } = useFocusOnFlight(center);
     return {
+      zoom,
+      center,
+      url,
+      attribution,
       isSpinnerVisible,
       flights,
       popupData,
@@ -76,26 +91,22 @@ export default {
       map,
     };
   },
-  components: {
-    Spinner,
-    LeafletHeatmap,
-    LMap,
-    LTileLayer,
-    LControl,
-    LIcon,
-    LPopup,
-    'l-rotated-marker': Vue2LeafletRotatedMarker,
-  },
-  data() {
-    return {
-      zoom: 6,
-      center: latLng(52, 19),
-      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
-      attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    };
-  },
 };
+
+function useMapConfig() {
+  const zoom = ref(6);
+  const center = ref(latLng(52, 19));
+  const url = ref('http://{s}.tile.osm.org/{z}/{x}/{y}.png');
+  const attribution = ref(
+    '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+  );
+  return {
+    zoom,
+    center,
+    url,
+    attribution,
+  };
+}
 
 function useFlights() {
   const isSpinnerVisible = ref(true);
@@ -130,7 +141,7 @@ function useFlights() {
   return { isSpinnerVisible, flights };
 }
 
-function useFocusOnFlight() {
+function useFocusOnFlight(center) {
   const isMarkerClicked = ref(false);
   const singleFlight = reactive({
     aircraft: null,
@@ -243,7 +254,7 @@ function useFocusOnFlight() {
     singleFlight.aircraft = null;
     singleFlight.route = null;
     singleFlight.trackingData = null;
-    map.value.mapObject.setView({ lat: 52, lng: 19 }, 6);
+    map.value.mapObject.setView(center.value, 6);
   }
 
   // function notification(message) {
