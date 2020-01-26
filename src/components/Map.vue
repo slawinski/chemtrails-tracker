@@ -61,6 +61,7 @@ export default {
       focusOnFlight,
       heatmapArray,
       goBack,
+      map,
     } = useFocusOnFlight();
     return {
       isSpinnerVisible,
@@ -70,6 +71,7 @@ export default {
       focusOnFlight,
       heatmapArray,
       goBack,
+      map,
     };
   },
   components: {
@@ -109,6 +111,16 @@ export default {
       return text;
     },
   },
+  methods: {
+    notification(message) {
+      this.$notify({
+        group: 'api',
+        type: 'error',
+        title: 'ERROR',
+        text: `An error has occurred while fetching ${message} data`,
+      });
+    },
+  },
 };
 
 function useFlights() {
@@ -120,7 +132,7 @@ function useFlights() {
     try {
       rawFlightsData = await getAll();
     } catch (error) {
-      notification('flights');
+      this.notification('flights');
     } finally {
       mapFlightsData(rawFlightsData);
       isSpinnerVisible.value = false;
@@ -152,6 +164,7 @@ function useFocusOnFlight() {
     trackingData: null,
   });
   const heatmapArray = ref([]);
+  const map = ref(null);
 
   async function focusOnFlight(flight) {
     isMarkerClicked.value = true;
@@ -167,7 +180,7 @@ function useFocusOnFlight() {
     try {
       rawRouteData = await showRoute(flight.callSign);
     } catch (error) {
-      notification('route');
+      // this.notification('route');
     } finally {
       mapRouteData(rawRouteData.data);
     }
@@ -186,7 +199,7 @@ function useFocusOnFlight() {
       obj = await showAirport(icao);
       return `${obj.data.municipality}, ${obj.data.country}`;
     } catch (error) {
-      notification('airport');
+      // this.notification('airport');
     }
   }
 
@@ -195,7 +208,7 @@ function useFocusOnFlight() {
     try {
       rawAircraftData = await showAircraft(flight.icao24);
     } catch (error) {
-      notification('aircraft');
+      // this.notification('aircraft');
     } finally {
       singleFlight.aircraft = rawAircraftData.data;
     }
@@ -236,21 +249,10 @@ function useFocusOnFlight() {
 
   function goBack() {
     isMarkerClicked.value = false;
-    singleFlight.value = {
-      aircraft: null,
-      route: null,
-      trackingData: null,
-    };
-    this.$refs.map.mapObject.setView({ lat: 52, lng: 19 }, 6);
-  }
-
-  function notification(message) {
-    this.$notify({
-      group: 'api',
-      type: 'error',
-      title: 'ERROR',
-      text: `An error has occurred while fetching ${message} data`,
-    });
+    singleFlight.aircraft = null;
+    singleFlight.route = null;
+    singleFlight.trackingData = null;
+    map.value.mapObject.setView({ lat: 52, lng: 19 }, 6);
   }
 
   return {
@@ -259,6 +261,7 @@ function useFocusOnFlight() {
     focusOnFlight,
     heatmapArray,
     goBack,
+    map,
   };
 }
 </script>
