@@ -38,6 +38,7 @@
 </template>
 
 <script>
+import { ref, reactive, onMounted } from '@vue/composition-api';
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
 import LeafletHeatmap from 'vue2-leaflet-heatmap';
 import {
@@ -51,45 +52,26 @@ import { LControl, LIcon, LMap, LTileLayer, LPopup } from 'vue2-leaflet';
 import { latLng } from 'leaflet';
 
 export default {
-  setup() {
-    function createHeatMap(position, trueTrack) {
-      const iterations = 100;
-      const distance = 20 / iterations;
-
-      return (this.heatmapArray = Array(iterations)
-        .fill()
-        .map((e, i) => {
-          return [
-            position.lat + getLat((distance * i) / 10, trueTrack),
-            position.lng + getLng((distance * i) / 10, trueTrack),
-            iterations - i,
-          ];
-        }));
-    }
-    function getLat(dist, trueTrack) {
-      if (trueTrack > 270 || trueTrack <= 90) {
-        return -Math.sqrt(
-          dist ** 2 * (1 - Math.sin(toRadians(trueTrack)) ** 2),
-        );
-      } else {
-        return Math.sqrt(dist ** 2 * (1 - Math.sin(toRadians(trueTrack)) ** 2));
-      }
-    }
-    function getLng(dist, trueTrack) {
-      if (trueTrack > 0 && trueTrack <= 180) {
-        return -Math.sqrt(
-          dist ** 2 * (1 - Math.cos(toRadians(trueTrack)) ** 2),
-        );
-      } else {
-        return Math.sqrt(dist ** 2 * (1 - Math.cos(toRadians(trueTrack)) ** 2));
-      }
-    }
-    function toRadians(angle) {
-      return angle * (Math.PI / 180);
-    }
-    return { createHeatMap };
-  },
   name: 'Map',
+  setup() {
+    const { isSpinnerVisible, flights } = useFlights();
+    const {
+      isMarkerClicked,
+      singleFlight,
+      focusOnFlight,
+      heatmapArray,
+      goBack,
+    } = useFocusOnFlight();
+    return {
+      isSpinnerVisible,
+      flights,
+      isMarkerClicked,
+      singleFlight,
+      focusOnFlight,
+      heatmapArray,
+      goBack,
+    };
+  },
   components: {
     Spinner,
     LeafletHeatmap,
@@ -102,20 +84,11 @@ export default {
   },
   data() {
     return {
-      isMarkerClicked: false,
       zoom: 6,
       center: latLng(52, 19),
       url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      flights: [],
-      singleFlight: {
-        aircraft: null,
-        route: null,
-        trackingData: null,
-      },
-      isSpinnerVisible: false,
-      heatmapArray: [],
     };
   },
   computed: {
@@ -123,129 +96,171 @@ export default {
       let text = '';
       if (this.singleFlight.aircraft && this.singleFlight.route) {
         text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
-          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
       } else if (this.singleFlight.aircraft && !this.singleFlight.route) {
         text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
           Route: no data`;
       } else if (!this.singleFlight.aircraft && this.singleFlight.route) {
         text = `Aircraft: no data <br/>
-          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
       } else if (!this.singleFlight.aircraft && !this.singleFlight.route) {
         text = `No data`;
       }
       return text;
     },
   },
-  methods: {
-    mapFlightsData(flightData) {
-      flightData.data.states.map(item => {
-        const obj = {
-          icao24: item[0],
-          callSign: item[1],
-          originCountry: item[2],
-          timePosition: item[3],
-          lastContact: item[4],
-          position: {
-            lat: item[6],
-            lng: item[5],
-          },
-          baroAltitude: item[7],
-          onGround: item[8],
-          velocity: item[9],
-          trueTrack: item[10],
-          verticalRate: item[11],
-          sensors: item[12],
-          geoAltitude: item[13],
-          squawk: item[14],
-          spi: item[15],
-          positionSource: item[16],
-        };
-        this.flights.push(obj);
-      });
-    },
-    async mapRouteData(routeData) {
-      return (this.singleFlight.route = {
-        callsign: routeData.callsign,
-        route: {
-          departure: await this.translateIcao(routeData.route[0]),
-          arrival: await this.translateIcao(routeData.route[1]),
-        },
-        updateTime: routeData.updateTime,
-        operatorIata: routeData.operatorIata,
-        flightNumber: routeData.flightNumber,
-      });
-    },
-    notification(message) {
-      this.$notify({
-        group: 'api',
-        type: 'error',
-        title: 'ERROR',
-        text: `An error has occurred while fetching ${message} data`,
-      });
-    },
-    async translateIcao(icao) {
-      let obj = {};
-      try {
-        obj = await showAirport(icao);
-        return `${obj.data.municipality}, ${obj.data.country}`;
-      } catch (error) {
-        this.notification('airport');
-      }
-    },
-    async getFlights() {
-      this.isSpinnerVisible = true;
-      let rawFlightsData = [];
-      try {
-        rawFlightsData = await getAll();
-      } catch (error) {
-        this.notification('flights');
-      } finally {
-        this.mapFlightsData(rawFlightsData);
-        this.isSpinnerVisible = false;
-      }
-    },
-    async getRoute(flight) {
-      let rawRouteData = {};
-      try {
-        rawRouteData = await showRoute(flight.callSign);
-      } catch (error) {
-        this.notification('route');
-      } finally {
-        this.mapRouteData(rawRouteData.data);
-      }
-    },
-    async getAircraft(flight) {
-      let rawAircraftData = {};
-      try {
-        rawAircraftData = await showAircraft(flight.icao24);
-      } catch (error) {
-        this.notification('aircraft');
-      } finally {
-        this.singleFlight.aircraft = rawAircraftData.data;
-      }
-    },
-    async focusOnFlight(flight) {
-      this.isMarkerClicked = true;
-      this.singleFlight.trackingData = flight;
-      this.$refs.map.mapObject.setView(flight.position, 8);
-      this.createHeatMap(flight.position, flight.trueTrack);
-      this.getRoute(flight);
-      this.getAircraft(flight);
-    },
-    goBack() {
-      this.isMarkerClicked = false;
-      this.singleFlight = {
-        aircraft: null,
-        route: null,
-        trackingData: null,
-      };
-      this.$refs.map.mapObject.setView(this.center, 6);
-    },
-  },
-  mounted() {
-    this.getFlights();
-  },
 };
+
+function useFlights() {
+  const isSpinnerVisible = ref(true);
+  const flights = ref([]);
+
+  onMounted(async () => {
+    let rawFlightsData = [];
+    try {
+      rawFlightsData = await getAll();
+    } catch (error) {
+      notification('flights');
+    } finally {
+      mapFlightsData(rawFlightsData);
+      isSpinnerVisible.value = false;
+    }
+  });
+
+  function mapFlightsData(flightData) {
+    flightData.data.states.map(item => {
+      const obj = {
+        icao24: item[0],
+        callSign: item[1],
+        position: {
+          lat: item[6],
+          lng: item[5],
+        },
+        trueTrack: item[10],
+      };
+      flights.value.push(obj);
+    });
+  }
+  return { isSpinnerVisible, flights };
+}
+
+function useFocusOnFlight() {
+  const isMarkerClicked = ref(false);
+  const singleFlight = reactive({
+    aircraft: null,
+    route: null,
+    trackingData: null,
+  });
+  const heatmapArray = ref([]);
+
+  async function focusOnFlight(flight) {
+    isMarkerClicked.value = true;
+    singleFlight.trackingData = flight;
+    this.$refs.map.mapObject.setView(flight.position, 8);
+    getRoute(flight);
+    getAircraft(flight);
+    createHeatMap(flight.position, flight.trueTrack);
+  }
+
+  async function getRoute(flight) {
+    let rawRouteData = {};
+    try {
+      rawRouteData = await showRoute(flight.callSign);
+    } catch (error) {
+      notification('route');
+    } finally {
+      mapRouteData(rawRouteData.data);
+    }
+  }
+
+  async function mapRouteData(routeData) {
+    return (singleFlight.route = {
+      departure: await translateIcao(routeData.route[0]),
+      arrival: await translateIcao(routeData.route[1]),
+    });
+  }
+
+  async function translateIcao(icao) {
+    let obj = {};
+    try {
+      obj = await showAirport(icao);
+      return `${obj.data.municipality}, ${obj.data.country}`;
+    } catch (error) {
+      notification('airport');
+    }
+  }
+
+  async function getAircraft(flight) {
+    let rawAircraftData = {};
+    try {
+      rawAircraftData = await showAircraft(flight.icao24);
+    } catch (error) {
+      notification('aircraft');
+    } finally {
+      singleFlight.aircraft = rawAircraftData.data;
+    }
+  }
+
+  function createHeatMap(position, trueTrack) {
+    const iterations = 100;
+    const distance = 20 / iterations;
+
+    return (heatmapArray.value = Array(iterations)
+      .fill()
+      .map((e, i) => {
+        return [
+          position.lat + getLat((distance * i) / 10, trueTrack),
+          position.lng + getLng((distance * i) / 10, trueTrack),
+          iterations - i,
+        ];
+      }));
+  }
+
+  function getLat(dist, trueTrack) {
+    const formula = Math.sqrt(
+      dist ** 2 * (1 - Math.sin(toRadians(trueTrack)) ** 2),
+    );
+    return trueTrack > 270 || trueTrack <= 90 ? -formula : formula;
+  }
+
+  function getLng(dist, trueTrack) {
+    const formula = Math.sqrt(
+      dist ** 2 * (1 - Math.cos(toRadians(trueTrack)) ** 2),
+    );
+    return trueTrack > 0 && trueTrack <= 180 ? -formula : formula;
+  }
+
+  function toRadians(angle) {
+    return angle * (Math.PI / 180);
+  }
+
+  function goBack() {
+    isMarkerClicked.value = false;
+    singleFlight.value = {
+      aircraft: null,
+      route: null,
+      trackingData: null,
+    };
+    this.$refs.map.mapObject.setView({ lat: 52, lng: 19 }, 6);
+  }
+
+  function notification(message) {
+    this.$notify({
+      group: 'api',
+      type: 'error',
+      title: 'ERROR',
+      text: `An error has occurred while fetching ${message} data`,
+    });
+  }
+
+  return {
+    isMarkerClicked,
+    singleFlight,
+    focusOnFlight,
+    heatmapArray,
+    goBack,
+  };
+}
 </script>
 
 <style>
