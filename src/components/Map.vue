@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted } from '@vue/composition-api';
+import { ref, reactive, onMounted, computed } from '@vue/composition-api';
 import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
 import LeafletHeatmap from 'vue2-leaflet-heatmap';
 import {
@@ -56,6 +56,7 @@ export default {
   setup() {
     const { isSpinnerVisible, flights } = useFlights();
     const {
+      popupData,
       isMarkerClicked,
       singleFlight,
       focusOnFlight,
@@ -66,6 +67,7 @@ export default {
     return {
       isSpinnerVisible,
       flights,
+      popupData,
       isMarkerClicked,
       singleFlight,
       focusOnFlight,
@@ -93,34 +95,6 @@ export default {
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
     };
   },
-  computed: {
-    popupData() {
-      let text = '';
-      if (this.singleFlight.aircraft && this.singleFlight.route) {
-        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
-          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
-      } else if (this.singleFlight.aircraft && !this.singleFlight.route) {
-        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
-          Route: no data`;
-      } else if (!this.singleFlight.aircraft && this.singleFlight.route) {
-        text = `Aircraft: no data <br/>
-          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
-      } else if (!this.singleFlight.aircraft && !this.singleFlight.route) {
-        text = `No data`;
-      }
-      return text;
-    },
-  },
-  methods: {
-    notification(message) {
-      this.$notify({
-        group: 'api',
-        type: 'error',
-        title: 'ERROR',
-        text: `An error has occurred while fetching ${message} data`,
-      });
-    },
-  },
 };
 
 function useFlights() {
@@ -132,7 +106,7 @@ function useFlights() {
     try {
       rawFlightsData = await getAll();
     } catch (error) {
-      this.notification('flights');
+      // notification('flights');
     } finally {
       mapFlightsData(rawFlightsData);
       isSpinnerVisible.value = false;
@@ -166,6 +140,23 @@ function useFocusOnFlight() {
   const heatmapArray = ref([]);
   const map = ref(null);
 
+  const popupData = computed(() => {
+    let popupText = '';
+    if (singleFlight.aircraft && singleFlight.route) {
+      popupText = `Aircraft: ${singleFlight.aircraft.model} <br/>
+          Route: ${singleFlight.route.departure} - ${singleFlight.route.arrival}`;
+    } else if (singleFlight.aircraft && !singleFlight.route) {
+      popupText = `Aircraft: ${singleFlight.aircraft.model} <br/>
+          Route: no data`;
+    } else if (!singleFlight.aircraft && singleFlight.route) {
+      popupText = `Aircraft: no data <br/>
+          Route: ${singleFlight.route.departure} - ${singleFlight.route.arrival}`;
+    } else if (!singleFlight.aircraft && !singleFlight.route) {
+      popupText = `No data`;
+    }
+    return popupText;
+  });
+
   async function focusOnFlight(flight) {
     isMarkerClicked.value = true;
     singleFlight.trackingData = flight;
@@ -180,7 +171,7 @@ function useFocusOnFlight() {
     try {
       rawRouteData = await showRoute(flight.callSign);
     } catch (error) {
-      // this.notification('route');
+      // notification('route');
     } finally {
       mapRouteData(rawRouteData.data);
     }
@@ -199,7 +190,7 @@ function useFocusOnFlight() {
       obj = await showAirport(icao);
       return `${obj.data.municipality}, ${obj.data.country}`;
     } catch (error) {
-      // this.notification('airport');
+      // notification('airport');
     }
   }
 
@@ -208,7 +199,7 @@ function useFocusOnFlight() {
     try {
       rawAircraftData = await showAircraft(flight.icao24);
     } catch (error) {
-      // this.notification('aircraft');
+      // notification('aircraft');
     } finally {
       singleFlight.aircraft = rawAircraftData.data;
     }
@@ -255,7 +246,17 @@ function useFocusOnFlight() {
     map.value.mapObject.setView({ lat: 52, lng: 19 }, 6);
   }
 
+  // function notification(message) {
+  //   this.$notify({
+  //     group: 'api',
+  //     type: 'error',
+  //     title: 'ERROR',
+  //     text: `An error has occurred while fetching ${message} data`,
+  //   });
+  // }
+
   return {
+    popupData,
     isMarkerClicked,
     singleFlight,
     focusOnFlight,
