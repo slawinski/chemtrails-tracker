@@ -151,6 +151,7 @@ function useFocusOnFlight(center) {
   const heatmapArray = ref([]);
   const map = ref(null);
 
+  // TODO potentially extractable as separate consumable
   const popupData = computed(() => {
     let popupText = '';
     if (singleFlight.aircraft && singleFlight.route) {
@@ -172,8 +173,11 @@ function useFocusOnFlight(center) {
     isMarkerClicked.value = true;
     singleFlight.trackingData = flight;
     this.$refs.map.mapObject.setView(flight.position, 8);
+    // TODO potentially extractable as separate consumable
     getRoute(flight);
+    // TODO potentially extractable as separate consumable
     getAircraft(flight);
+    // TODO potentially extractable as separate consumable
     createHeatMap(flight.position, flight.trueTrack);
   }
 
