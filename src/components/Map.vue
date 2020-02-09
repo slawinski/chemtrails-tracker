@@ -85,13 +85,13 @@ export default {
       let text = '';
       if (this.singleFlight.aircraft && this.singleFlight.route) {
         text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
-          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
       } else if (this.singleFlight.aircraft && !this.singleFlight.route) {
         text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
           Route: no data`;
       } else if (!this.singleFlight.aircraft && this.singleFlight.route) {
         text = `Aircraft: no data <br/>
-          Route: ${this.singleFlight.route.route.departure} - ${this.singleFlight.route.route.arrival}`;
+          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
       } else if (!this.singleFlight.aircraft && !this.singleFlight.route) {
         text = `No data`;
       }
@@ -104,37 +104,19 @@ export default {
         const obj = {
           icao24: item[0],
           callSign: item[1],
-          originCountry: item[2],
-          timePosition: item[3],
-          lastContact: item[4],
           position: {
             lat: item[6],
             lng: item[5],
           },
-          baroAltitude: item[7],
-          onGround: item[8],
-          velocity: item[9],
           trueTrack: item[10],
-          verticalRate: item[11],
-          sensors: item[12],
-          geoAltitude: item[13],
-          squawk: item[14],
-          spi: item[15],
-          positionSource: item[16],
         };
         this.flights.push(obj);
       });
     },
     async mapRouteData(routeData) {
       return (this.singleFlight.route = {
-        callsign: routeData.callsign,
-        route: {
-          departure: await this.translateIcao(routeData.route[0]),
-          arrival: await this.translateIcao(routeData.route[1]),
-        },
-        updateTime: routeData.updateTime,
-        operatorIata: routeData.operatorIata,
-        flightNumber: routeData.flightNumber,
+        departure: await this.translateIcao(routeData.route[0]),
+        arrival: await this.translateIcao(routeData.route[1]),
       });
     },
     notification(message) {
