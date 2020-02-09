@@ -52,6 +52,7 @@ import { latLng } from 'leaflet';
 
 export default {
   name: 'Map',
+
   components: {
     Spinner,
     LeafletHeatmap,
@@ -62,24 +63,26 @@ export default {
     LPopup,
     'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
+
   data() {
     return {
-      isMarkerClicked: false,
-      zoom: 6,
-      center: latLng(52, 19),
-      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+      zoom: 6, // Map configuration
+      center: latLng(52, 19), // Map configuration
+      url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png', // Map configuration
       attribution:
-        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-      flights: [],
+        '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors', // Map configuration
+      isMarkerClicked: false,
+      flights: [], // Processing all flights
+      isSpinnerVisible: false, // Processing all flights
       singleFlight: {
         aircraft: null,
         route: null,
         trackingData: null,
-      },
-      isSpinnerVisible: false,
-      heatmapArray: [],
+      }, // Processing one flight
+      heatmapArray: [], // Processing one flight
     };
   },
+
   computed: {
     popupData() {
       let text = '';
@@ -96,9 +99,23 @@ export default {
         text = `No data`;
       }
       return text;
-    },
+    }, // Notification service
   },
+
   methods: {
+    async getFlights() {
+      this.isSpinnerVisible = true;
+      let rawFlightsData = [];
+      try {
+        rawFlightsData = await getAll();
+      } catch (error) {
+        this.notification('flights');
+      } finally {
+        this.mapFlightsData(rawFlightsData);
+        this.isSpinnerVisible = false;
+      }
+    }, // Processing all flights
+
     mapFlightsData(flightData) {
       flightData.data.states.map(item => {
         const obj = {
@@ -112,21 +129,46 @@ export default {
         };
         this.flights.push(obj);
       });
-    },
+    }, // Processing all flights
+
+    async focusOnFlight(flight) {
+      this.isMarkerClicked = true;
+      this.singleFlight.trackingData = flight;
+      this.$refs.map.mapObject.setView(flight.position, 8);
+      this.createHeatMap(flight.position, flight.trueTrack);
+      this.getRoute(flight);
+      this.getAircraft(flight);
+    }, // Processing one flight
+
+    async getAircraft(flight) {
+      let rawAircraftData = {};
+      try {
+        rawAircraftData = await showAircraft(flight.icao24);
+      } catch (error) {
+        this.notification('aircraft');
+      } finally {
+        this.singleFlight.aircraft = rawAircraftData.data;
+      }
+    }, // Processing one flight
+
+    async getRoute(flight) {
+      let rawRouteData = {};
+      try {
+        rawRouteData = await showRoute(flight.callSign);
+      } catch (error) {
+        this.notification('route');
+      } finally {
+        this.mapRouteData(rawRouteData.data);
+      }
+    }, // Processing one flight
+
     async mapRouteData(routeData) {
       return (this.singleFlight.route = {
         departure: await this.translateIcao(routeData.route[0]),
         arrival: await this.translateIcao(routeData.route[1]),
       });
-    },
-    notification(message) {
-      this.$notify({
-        group: 'api',
-        type: 'error',
-        title: 'ERROR',
-        text: `An error has occurred while fetching ${message} data`,
-      });
-    },
+    }, // Processing one flight
+
     async translateIcao(icao) {
       let obj = {};
       try {
@@ -135,7 +177,8 @@ export default {
       } catch (error) {
         this.notification('airport');
       }
-    },
+    }, // Processing one flight
+
     createHeatMap(position, trueTrack) {
       const iterations = 100;
       const distance = 20 / iterations;
@@ -149,7 +192,8 @@ export default {
             iterations - i,
           ];
         }));
-    },
+    }, // Processing one flight
+
     getLat(dist, trueTrack) {
       if (trueTrack > 270 || trueTrack <= 90) {
         return -Math.sqrt(
@@ -160,7 +204,8 @@ export default {
           dist ** 2 * (1 - Math.sin(this.toRadians(trueTrack)) ** 2),
         );
       }
-    },
+    }, // Processing one flight
+
     getLng(dist, trueTrack) {
       if (trueTrack > 0 && trueTrack <= 180) {
         return -Math.sqrt(
@@ -171,50 +216,21 @@ export default {
           dist ** 2 * (1 - Math.cos(this.toRadians(trueTrack)) ** 2),
         );
       }
-    },
+    }, // Processing one flight
+
     toRadians(angle) {
       return angle * (Math.PI / 180);
-    },
-    async getFlights() {
-      this.isSpinnerVisible = true;
-      let rawFlightsData = [];
-      try {
-        rawFlightsData = await getAll();
-      } catch (error) {
-        this.notification('flights');
-      } finally {
-        this.mapFlightsData(rawFlightsData);
-        this.isSpinnerVisible = false;
-      }
-    },
-    async getRoute(flight) {
-      let rawRouteData = {};
-      try {
-        rawRouteData = await showRoute(flight.callSign);
-      } catch (error) {
-        this.notification('route');
-      } finally {
-        this.mapRouteData(rawRouteData.data);
-      }
-    },
-    async getAircraft(flight) {
-      let rawAircraftData = {};
-      try {
-        rawAircraftData = await showAircraft(flight.icao24);
-      } catch (error) {
-        this.notification('aircraft');
-      } finally {
-        this.singleFlight.aircraft = rawAircraftData.data;
-      }
-    },
-    async focusOnFlight(flight) {
-      this.isMarkerClicked = true;
-      this.singleFlight.trackingData = flight;
-      this.$refs.map.mapObject.setView(flight.position, 8);
-      this.createHeatMap(flight.position, flight.trueTrack);
-      this.getRoute(flight);
-      this.getAircraft(flight);
-    },
+    }, // Processing one flight
+
+    notification(message) {
+      this.$notify({
+        group: 'api',
+        type: 'error',
+        title: 'ERROR',
+        text: `An error has occurred while fetching ${message} data`,
+      });
+    }, // Notification service
+
     goBack() {
       this.isMarkerClicked = false;
       this.singleFlight = {
@@ -223,10 +239,11 @@ export default {
         trackingData: null,
       };
       this.$refs.map.mapObject.setView(this.center, 6);
-    },
+    }, // Processing one flight
   },
+
   mounted() {
-    this.getFlights();
+    this.getFlights(); // Processing all flights
   },
 };
 </script>
