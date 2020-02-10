@@ -125,6 +125,7 @@ function useFlights() {
   });
 
   function mapFlightsData(flightData) {
+    // TODO array desctructring
     flightData.data.states.map(item => {
       const obj = {
         icao24: item[0],
@@ -135,6 +136,7 @@ function useFlights() {
         },
         trueTrack: item[10],
       };
+      // TODO spread operator
       flights.value.push(obj);
     });
   }
@@ -143,6 +145,7 @@ function useFlights() {
 
 function useFocusOnFlight(center) {
   const isMarkerClicked = ref(false);
+  // TODO toRef
   const singleFlight = reactive({
     aircraft: null,
     route: null,
@@ -154,6 +157,7 @@ function useFocusOnFlight(center) {
   // TODO potentially extractable as separate consumable
   const popupData = computed(() => {
     let popupText = '';
+    // TODO object destructuring
     if (singleFlight.aircraft && singleFlight.route) {
       popupText = `Aircraft: ${singleFlight.aircraft.model} <br/>
           Route: ${singleFlight.route.departure} - ${singleFlight.route.arrival}`;
@@ -194,6 +198,7 @@ function useFocusOnFlight(center) {
 
   async function mapRouteData(routeData) {
     return (singleFlight.route = {
+      // TODO array destructuring
       departure: await translateIcao(routeData.route[0]),
       arrival: await translateIcao(routeData.route[1]),
     });
@@ -203,6 +208,7 @@ function useFocusOnFlight(center) {
     let obj = {};
     try {
       obj = await showAirport(icao);
+      // TODO object destructuring
       return `${obj.data.municipality}, ${obj.data.country}`;
     } catch (error) {
       // notification('airport');
