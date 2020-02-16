@@ -1,7 +1,7 @@
 <template>
   <div>
     <l-map ref="map" :zoom.sync="zoom" :center="center">
-      <l-tile-layer :url="url" :attribution="attribution" />
+      <l-tile-layer :url="url" />
       <span v-if="!isMarkerClicked">
         <l-rotated-marker
           v-for="flight in flights"
@@ -64,7 +64,7 @@ export default {
     'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   setup() {
-    const { zoom, center, url, attribution } = useMapConfig();
+    const { zoom, center, url } = useMapConfig();
     const { isSpinnerVisible, flights } = useFlights();
     const {
       popupData,
@@ -79,7 +79,6 @@ export default {
       zoom,
       center,
       url,
-      attribution,
       isSpinnerVisible,
       flights,
       popupData,
@@ -97,14 +96,10 @@ function useMapConfig() {
   const zoom = ref(6);
   const center = ref(latLng(52, 19));
   const url = ref('http://{s}.tile.osm.org/{z}/{x}/{y}.png');
-  const attribution = ref(
-    '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-  );
   return {
     zoom,
     center,
     url,
-    attribution,
   };
 }
 
@@ -125,16 +120,16 @@ function useFlights() {
   });
 
   function mapFlightsData(flightData) {
-    // TODO array desctructring
     flightData.data.states.map(item => {
+      const [icao24, callSign, , , , lng, lat, , , , trueTrack] = item;
       const obj = {
-        icao24: item[0],
-        callSign: item[1],
+        icao24,
+        callSign,
         position: {
-          lat: item[6],
-          lng: item[5],
+          lat,
+          lng,
         },
-        trueTrack: item[10],
+        trueTrack,
       };
       // TODO spread operator
       flights.value.push(obj);
@@ -145,7 +140,6 @@ function useFlights() {
 
 function useFocusOnFlight(center) {
   const isMarkerClicked = ref(false);
-  // TODO toRef
   const singleFlight = reactive({
     aircraft: null,
     route: null,
@@ -154,7 +148,6 @@ function useFocusOnFlight(center) {
   const heatmapArray = ref([]);
   const map = ref(null);
 
-  // TODO potentially extractable as separate consumable
   const popupData = computed(() => {
     let popupText = '';
     // TODO object destructuring
@@ -176,12 +169,9 @@ function useFocusOnFlight(center) {
   async function focusOnFlight(flight) {
     isMarkerClicked.value = true;
     singleFlight.trackingData = flight;
-    this.$refs.map.mapObject.setView(flight.position, 8);
-    // TODO potentially extractable as separate consumable
+    map.value.mapObject.setView(flight.position, 8);
     getRoute(flight);
-    // TODO potentially extractable as separate consumable
     getAircraft(flight);
-    // TODO potentially extractable as separate consumable
     createHeatMap(flight.position, flight.trueTrack);
   }
 
@@ -197,10 +187,10 @@ function useFocusOnFlight(center) {
   }
 
   async function mapRouteData(routeData) {
+    const [rawDeparture, rawArrival] = routeData.route;
     return (singleFlight.route = {
-      // TODO array destructuring
-      departure: await translateIcao(routeData.route[0]),
-      arrival: await translateIcao(routeData.route[1]),
+      departure: await translateIcao(rawDeparture),
+      arrival: await translateIcao(rawArrival),
     });
   }
 
@@ -208,8 +198,8 @@ function useFocusOnFlight(center) {
     let obj = {};
     try {
       obj = await showAirport(icao);
-      // TODO object destructuring
-      return `${obj.data.municipality}, ${obj.data.country}`;
+      const { municipality, country } = obj.data;
+      return `${municipality}, ${country}`;
     } catch (error) {
       // notification('airport');
     }
