@@ -17,19 +17,19 @@ export function useFocusOnFlight(center) {
 
   const popupData = computed(() => {
     let popupText = '';
-    // TODO object destructuring
-    if (singleFlight.aircraft && singleFlight.route) {
-      popupText = `Airlines: ${singleFlight.aircraft.owner} <br/>
-          Aircraft: ${singleFlight.aircraft.model} <br/>
-          Route: ${singleFlight.route.departure} - ${singleFlight.route.arrival}`;
-    } else if (singleFlight.aircraft && !singleFlight.route) {
-      popupText = `Aircraft: ${singleFlight.aircraft.model} <br/>
+    const { aircraft, route } = singleFlight;
+    if (aircraft && route) {
+      popupText = `Airlines: ${aircraft.owner} <br/>
+          Aircraft: ${aircraft.model} <br/>
+          Route: ${route.departure} - ${route.arrival}`;
+    } else if (aircraft && !route) {
+      popupText = `Aircraft: ${aircraft.model} <br/>
           Route: no data`;
-    } else if (!singleFlight.aircraft && singleFlight.route) {
+    } else if (!aircraft && route) {
       popupText = `Airline: no data <br/>
           Aircraft: no data <br/>
-          Route: ${singleFlight.route.departure} - ${singleFlight.route.arrival}`;
-    } else if (!singleFlight.aircraft && !singleFlight.route) {
+          Route: ${route.departure} - ${route.arrival}`;
+    } else if (!aircraft && !route) {
       popupText = `No data`;
     }
     return popupText;
@@ -49,7 +49,7 @@ export function useFocusOnFlight(center) {
     try {
       rawRouteData = await showRoute(flight.callSign);
     } catch (error) {
-      // notification('route');
+      console.error(error);
     } finally {
       mapRouteData(rawRouteData.data);
     }
@@ -70,7 +70,7 @@ export function useFocusOnFlight(center) {
       const { municipality, country } = obj.data;
       return `${municipality}, ${country}`;
     } catch (error) {
-      // notification('airport');
+      console.error(error);
     }
   }
 
@@ -79,7 +79,7 @@ export function useFocusOnFlight(center) {
     try {
       rawAircraftData = await showAircraft(flight.icao24);
     } catch (error) {
-      // notification('aircraft');
+      console.error(error);
     } finally {
       singleFlight.aircraft = rawAircraftData.data;
     }
@@ -125,15 +125,6 @@ export function useFocusOnFlight(center) {
     singleFlight.trackingData = null;
     map.value.mapObject.setView(center.value, 6);
   }
-
-  // function notification(message) {
-  //   this.$notify({
-  //     group: 'api',
-  //     type: 'error',
-  //     title: 'ERROR',
-  //     text: `An error has occurred while fetching ${message} data`,
-  //   });
-  // }
 
   return {
     popupData,

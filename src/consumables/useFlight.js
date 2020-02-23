@@ -1,4 +1,4 @@
-import { ref, onMounted } from '@vue/composition-api';
+import { onMounted, ref } from '@vue/composition-api';
 import { getAll } from '../services/flights.service';
 
 export function useFlights() {
@@ -14,7 +14,7 @@ export function useFlights() {
     try {
       rawFlightsData = await getAll();
     } catch (error) {
-      // notification('flights');
+      console.error(error);
     } finally {
       mapFlightsData(rawFlightsData);
       isSpinnerVisible.value = false;
@@ -22,20 +22,20 @@ export function useFlights() {
   }
 
   function mapFlightsData(flightData) {
-    flightData.data.states.map(item => {
-      const [icao24, callSign, , , , lng, lat, , , , trueTrack] = item;
-      const obj = {
-        icao24,
-        callSign,
-        position: {
-          lat,
-          lng,
-        },
-        trueTrack,
-      };
-      // TODO spread operator
-      flights.value.push(obj);
-    });
+    flights.value = [
+      ...flightData.data.states.map(item => {
+        const [icao24, callSign, , , , lng, lat, , , , trueTrack] = item;
+        return {
+          icao24,
+          callSign,
+          position: {
+            lat,
+            lng,
+          },
+          trueTrack,
+        };
+      }),
+    ];
   }
   return { isSpinnerVisible, flights };
 }
