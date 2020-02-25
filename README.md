@@ -34,21 +34,7 @@ npm run lint
 
 ### Deployment
 
-```
-git push origin --delete gh-pages
-```
-
-```
-npm run build
-```
-
-```
-git add dist -f && git commit -m "Initial dist subtree commit"
-```
-
-```
-git subtree push --prefix dist origin gh-pages
-```
+Just run `deploy.sh`
 
 ### Customize configuration
 
