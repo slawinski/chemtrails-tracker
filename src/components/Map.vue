@@ -101,6 +101,19 @@ export default {
   },
 
   methods: {
+    async getFlights() {
+      this.isSpinnerVisible = true;
+      let rawFlightsData = [];
+      try {
+        rawFlightsData = await getAll();
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.mapFlightsData(rawFlightsData);
+        this.isSpinnerVisible = false;
+      }
+    }, // Get all flights
+
     mapFlightsData(flightData) {
       this.flights = [
         ...flightData.data.states.map(item => {
@@ -227,17 +240,8 @@ export default {
     }, // Show one flight
   },
 
-  async mounted() {
-    this.isSpinnerVisible = true;
-    let rawFlightsData = [];
-    try {
-      rawFlightsData = await getAll();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      this.mapFlightsData(rawFlightsData);
-      this.isSpinnerVisible = false;
-    }
+  mounted() {
+    this.getFlights();
   }, // Get all flights
 };
 </script>
