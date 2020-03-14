@@ -1,10 +1,7 @@
 import Vue from 'vue';
 import App from './App.vue';
-import Notifications from 'vue-notification';
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-Vue.use(Notifications);
 
 Vue.config.productionTip = false;
 delete Icon.Default.prototype._getIconUrl;

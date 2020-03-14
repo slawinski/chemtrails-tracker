@@ -97,24 +97,31 @@ export default {
         text = `No data`;
       }
       return text;
-    }, // Notification service
+    }, // Popup
   },
 
   methods: {
     mapFlightsData(flightData) {
-      flightData.data.states.map(item => {
-        const [icao24, callSign, , , , lng, lat, , , , trueTrack] = item;
-        const obj = {
-          icao24: icao24,
-          callSign: callSign,
-          position: {
-            lat: lat,
-            lng: lng,
-          },
-          trueTrack: trueTrack,
-        };
-        this.flights.push(obj);
-      });
+      this.flights = [
+        ...flightData.data.states.map(item => {
+          const {
+            0: icao24,
+            1: callSign,
+            5: lng,
+            6: lat,
+            10: trueTrack,
+          } = item;
+          return {
+            icao24,
+            callSign,
+            position: {
+              lat,
+              lng,
+            },
+            trueTrack,
+          };
+        }),
+      ];
     }, // Get all flights
 
     async focusOnFlight(flight) {
@@ -131,7 +138,7 @@ export default {
       try {
         rawAircraftData = await showAircraft(flight.icao24);
       } catch (error) {
-        this.notification('aircraft');
+        console.error(error);
       } finally {
         this.singleFlight.aircraft = rawAircraftData.data;
       }
@@ -142,7 +149,7 @@ export default {
       try {
         rawRouteData = await showRoute(flight.callSign);
       } catch (error) {
-        this.notification('route');
+        console.error(error);
       } finally {
         this.mapRouteData(rawRouteData.data);
       }
@@ -162,7 +169,7 @@ export default {
         obj = await showAirport(icao);
         return `${obj.data.municipality}, ${obj.data.country}`;
       } catch (error) {
-        this.notification('airport');
+        console.error(error);
       }
     }, // Show one flight
 
@@ -209,15 +216,6 @@ export default {
       return angle * (Math.PI / 180);
     }, // Show one flight
 
-    notification(message) {
-      this.$notify({
-        group: 'api',
-        type: 'error',
-        title: 'ERROR',
-        text: `An error has occurred while fetching ${message} data`,
-      });
-    }, // Notification service
-
     goBack() {
       this.isMarkerClicked = false;
       this.singleFlight = {
@@ -235,7 +233,7 @@ export default {
     try {
       rawFlightsData = await getAll();
     } catch (error) {
-      this.notification('flights');
+      console.error(error);
     } finally {
       this.mapFlightsData(rawFlightsData);
       this.isSpinnerVisible = false;
