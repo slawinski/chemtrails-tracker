@@ -7,8 +7,6 @@ describe('Map component', () => {
 
     expect(wrapper.isVueInstance()).toBeTruthy();
     expect(wrapper.is(Map)).toBe(true);
-    expect(wrapper.contains('div')).toBe(true);
-
-    // TODO make a smoke check by testing map, marker, marker trigger, heatmap
+    expect(wrapper.findAll({ ref: 'map' })).toHaveLength(1);
   });
 });
