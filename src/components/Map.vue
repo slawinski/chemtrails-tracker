@@ -7,7 +7,7 @@
           v-for="flight in flights"
           :key="`marker-${flight.icao24}`"
           :lat-lng="flight.position"
-          :rotationAngle="flight.trueTrack"
+          :rotation-angle="flight.trueTrack"
           @click="focusOnFlight(flight)"
         >
           <l-icon>
@@ -19,7 +19,7 @@
         <LeafletHeatmap :lat-lng="heatmapArray" />
         <l-rotated-marker
           :lat-lng="singleFlight.trackingData.position"
-          :rotationAngle="singleFlight.trackingData.trueTrack"
+          :rotation-angle="singleFlight.trackingData.trueTrack"
         >
           <l-popup :content="popupData" />
           <l-icon>
@@ -33,7 +33,7 @@
         </l-control>
       </span>
     </l-map>
-    <Spinner class="spinner" v-if="isSpinnerVisible" />
+    <Spinner v-if="isSpinnerVisible" class="spinner" />
   </div>
 </template>
 
@@ -102,6 +102,10 @@ export default {
       return popupText;
     }, // Popup
   },
+
+  mounted() {
+    this.getFlights();
+  }, // Get all flights,
 
   methods: {
     async getFlights() {
@@ -243,10 +247,6 @@ export default {
       this.$refs.map.mapObject.setView(this.center, 6);
     }, // Show one flight
   },
-
-  mounted() {
-    this.getFlights();
-  }, // Get all flights
 };
 </script>
 
