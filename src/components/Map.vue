@@ -144,9 +144,9 @@ export default {
       this.isMarkerClicked = true;
       this.singleFlight.trackingData = flight;
       this.$refs.map.mapObject.setView(flight.position, 8);
-      this.createHeatMap(flight.position, flight.trueTrack);
       this.getRoute(flight);
       this.getAircraft(flight);
+      this.createHeatMap(flight.position, flight.trueTrack);
     }, // Show one flight
 
     async getAircraft(flight) {
@@ -183,7 +183,8 @@ export default {
       let obj = {};
       try {
         obj = await showAirport(icao);
-        return `${obj.data.municipality}, ${obj.data.country}`;
+        const { municipality, country } = obj.data;
+        return `${municipality}, ${country}`;
       } catch (error) {
         console.error(error);
       }
