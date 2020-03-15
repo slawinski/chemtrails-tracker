@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <Map />
-    <notifications group="api" position="top right" />
   </div>
 </template>
 

@@ -1,13 +1,13 @@
-import { ref } from '@vue/composition-api';
+import { reactive, toRefs } from '@vue/composition-api';
 import { latLng } from 'leaflet';
 
 export function useMapConfig() {
-  const zoom = ref(6);
-  const center = ref(latLng(52, 19));
-  const url = ref('http://{s}.tile.osm.org/{z}/{x}/{y}.png');
+  const mapConfig = reactive({
+    zoom: 6,
+    center: latLng(52, 19),
+    url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+  });
   return {
-    zoom,
-    center,
-    url,
+    ...toRefs(mapConfig),
   };
 }

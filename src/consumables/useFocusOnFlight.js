@@ -23,7 +23,8 @@ export function useFocusOnFlight(center) {
           Aircraft: ${aircraft.model} <br/>
           Route: ${route.departure} - ${route.arrival}`;
     } else if (aircraft && !route) {
-      popupText = `Aircraft: ${aircraft.model} <br/>
+      popupText = `Airlines: ${aircraft.owner} <br/>
+          Aircraft: ${aircraft.model} <br/>
           Route: no data`;
     } else if (!aircraft && route) {
       popupText = `Airline: no data <br/>

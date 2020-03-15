@@ -59,30 +59,11 @@ export default {
     'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   setup() {
-    const { zoom, center, url } = useMapConfig();
-    const { isSpinnerVisible, flights } = useFlights();
-    const {
-      popupData,
-      isMarkerClicked,
-      singleFlight,
-      focusOnFlight,
-      heatmapArray,
-      goBack,
-      map,
-    } = useFocusOnFlight(center);
+    const { center } = useMapConfig();
     return {
-      zoom,
-      center,
-      url,
-      isSpinnerVisible,
-      flights,
-      popupData,
-      isMarkerClicked,
-      singleFlight,
-      focusOnFlight,
-      heatmapArray,
-      goBack,
-      map,
+      ...useMapConfig(),
+      ...useFlights(),
+      ...useFocusOnFlight(center),
     };
   },
 };
