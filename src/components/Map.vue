@@ -83,20 +83,23 @@ export default {
 
   computed: {
     popupData() {
-      let text = '';
-      if (this.singleFlight.aircraft && this.singleFlight.route) {
-        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
-          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
-      } else if (this.singleFlight.aircraft && !this.singleFlight.route) {
-        text = `Aircraft: ${this.singleFlight.aircraft.model} <br/>
+      let popupText = '';
+      const { aircraft, route } = this.singleFlight;
+      if (aircraft && route) {
+        popupText = `Airlines: ${aircraft.owner} <br/>
+          Aircraft: ${aircraft.model} <br/>
+          Route: ${route.departure} - ${route.arrival}`;
+      } else if (aircraft && !route) {
+        popupText = `Aircraft: ${aircraft.model} <br/>
           Route: no data`;
-      } else if (!this.singleFlight.aircraft && this.singleFlight.route) {
-        text = `Aircraft: no data <br/>
-          Route: ${this.singleFlight.route.departure} - ${this.singleFlight.route.arrival}`;
-      } else if (!this.singleFlight.aircraft && !this.singleFlight.route) {
-        text = `No data`;
+      } else if (!aircraft && route) {
+        popupText = `Airline: no data <br/>
+          Aircraft: no data <br/>
+          Route: ${route.departure} - ${route.arrival}`;
+      } else if (!aircraft && !route) {
+        popupText = `No data`;
       }
-      return text;
+      return popupText;
     }, // Popup
   },
 
