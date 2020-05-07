@@ -3,8 +3,8 @@ import { latLng } from 'leaflet';
 
 export function useMapConfig() {
   const mapConfig = reactive({
-    zoom: 6,
-    center: latLng(52, 19),
+    zoom: 10,
+    center: latLng(51.789836, 17.041303),
     url: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
   });
   return {
