@@ -2,29 +2,75 @@
   <div>
     <l-map ref="map" :zoom.sync="zoom" :center="center">
       <l-tile-layer :url="url" />
-      <Hotline :lat-lngs="flights" :min="990" :max="1000" />
+      <span v-if="!isMarkerClicked">
+        <l-rotated-marker
+          v-for="flight in flights"
+          :key="`marker-${flight.icao24}`"
+          :lat-lng="flight.position"
+          :rotation-angle="flight.trueTrack"
+          @click="focusOnFlight(flight)"
+        >
+          <l-icon>
+            <img src="../../src/assets/airplane.svg" alt="airplane" />
+          </l-icon>
+        </l-rotated-marker>
+      </span>
+      <span v-else>
+        <LeafletHeatmap :lat-lng="heatmapArray" />
+        <l-rotated-marker
+          :lat-lng="singleFlight.trackingData.position"
+          :rotation-angle="singleFlight.trackingData.trueTrack"
+        >
+          <l-popup :content="popupData" />
+          <l-icon>
+            <img src="../../src/assets/airplane.svg" alt="airplane" />
+          </l-icon>
+        </l-rotated-marker>
+        <l-control position="bottomleft">
+          <button @click="goBack">
+            Take me back!
+          </button>
+        </l-control>
+      </span>
     </l-map>
+    <Spinner v-if="isSpinnerVisible" class="spinner" />
   </div>
 </template>
 
 <script>
-import { LMap, LTileLayer } from 'vue2-leaflet';
+import Vue2LeafletRotatedMarker from 'vue2-leaflet-rotatedmarker';
+import LeafletHeatmap from 'vue2-leaflet-heatmap';
+import Spinner from '../components/Spinner';
+import { LControl, LIcon, LMap, LTileLayer, LPopup } from 'vue2-leaflet';
 import { useMapConfig } from '../consumables/useMapConfig';
 import { useFlights } from '../consumables/useFlight';
-import Hotline from './Hotline';
+import { useFocusOnFlight } from '../consumables/useFocusOnFlight';
 
 export default {
   name: 'Map',
   components: {
+    Spinner,
+    LeafletHeatmap,
     LMap,
     LTileLayer,
-    Hotline,
+    LControl,
+    LIcon,
+    LPopup,
+    'l-rotated-marker': Vue2LeafletRotatedMarker,
   },
   setup() {
+    const { center } = useMapConfig();
     return {
       ...useMapConfig(),
       ...useFlights(),
+      ...useFocusOnFlight(center),
     };
   },
 };
 </script>
+
+<style>
+.spinner {
+  z-index: 9999;
+}
+</style>

@@ -1,4 +1,6 @@
-# Wizualizacja danych telemetrycznych
+# Chemtrails Guru
+
+With Chemtrails Guru you will easily determine if a chemtrail is being dispersed above your head!
 
 ## Project setup
 
@@ -30,7 +32,7 @@ npm run test
 npm run lint
 ```
 
-### Deployment on gh-pages
+### Deployment
 
 Just run `deploy.sh`
 
