@@ -23,18 +23,19 @@ export function useFlights() {
 
   function mapFlightsData(flightData) {
     flights.value = [
-      ...flightData.data.states.map(item => {
-        const { 0: icao24, 1: callSign, 5: lng, 6: lat, 10: trueTrack } = item;
-        return {
-          icao24,
-          callSign,
-          position: {
-            lat,
-            lng,
-          },
-          trueTrack,
-        };
-      }),
+      ...flightData.data.states.map(
+        ({ 0: icao24, 1: callSign, 5: lng, 6: lat, 10: trueTrack }) => {
+          return {
+            icao24,
+            callSign,
+            position: {
+              lat,
+              lng,
+            },
+            trueTrack,
+          };
+        },
+      ),
     ];
   }
   return { isSpinnerVisible, flights };
